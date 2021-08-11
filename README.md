@@ -2,7 +2,7 @@
 
 ------
 
-This warehouse contains multiple types of interview questions such as algorithms and choices, and focuses on detailed analysis of front-end related key concepts.
+This warehouse includes multiple types of interview questions such as algorithms, selection, and overview, focusing on the analysis of key concepts related to the front-end.
 
-本仓库囊括算法、选择等多类型面试题，着力对前端相关重点概念进行详细解析。
+本仓库囊括算法、选择、概述等多类型面试题，着力对前端相关重点概念进行剖析。
 
