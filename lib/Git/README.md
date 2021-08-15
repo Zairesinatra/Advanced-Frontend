@@ -11,6 +11,7 @@ node_modules
 .vscode
 build/    # 忽略 build/ 目录下的所有文件
 doc/*.txt # 会忽略 doc/notes.txt 但不包括 doc/server/arch.txt
+**/node_modules # ** 忽略多层文件夹
 ```
 
 由于新建的文件在 git 中会有缓存，某些文件已经被纳入了版本管理中，就算是在 `.gitignore` 中已经声明了忽略路径也是不起作用的，这时候应该先把本地缓存删除，然后再进行 `git push`，这样就不会出现忽略的文件了。

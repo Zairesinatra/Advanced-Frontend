@@ -20,7 +20,7 @@ webpack 是一种前端资源构建工具，一个静态模块打包器 (module 
 
 - #### Loader
 
-webpack 自身只理解 JavaScript，故需让 webpack 能够去处理那些非 `.js` 文件。
+webpack 自身只理解 JavaScript，故需让 webpack 能够去处理那些非 `.js` 文件。主要职责是完成非 JavaScript 模块到 JavaScript 模块的转换。
 
 - #### Plugins
 
@@ -787,10 +787,6 @@ module.exports = {
 
 优化打包构建速度（调试、开发友好）、优化代码调试（告诉开发者源代码出错在哪里）
 
-- 生产环境优化
-
-优化打包构建速度、优化代码运行性能（用户留存度）
-
 ### HMR(Hot Module Replace)
 
 热模块替换作用：一个模块发生变化，只需重新打包这一个模块（并非所有）。避免上万模块需要重新打包。本地代码改变，重新编译、刷新浏览器即为热更新。HMR 功能对于 `.js` 的处理只能处理非入口 `.js` 文件的其他文件。入口文件进行 HMR 所有文件都会重新打包。
@@ -831,3 +827,543 @@ if(module.hot) {
 devtool: 'source-map'
 ```
 
+```js
+[inline-|hidden-|eval-][nosource-][cheap-[module-]]source-map
+```
+
+| 前缀         | 解释                                                         |
+| ------------ | ------------------------------------------------------------ |
+| inline       | 内联文件：外部生成文件，**内联没有生成**；构建速度快；       |
+| hidden       | 只生成一个 source-map。能提示错误代码错误原因，不能追踪源代码错误。 |
+| eval         | 每一个文件会追加 source-map，都在 eval。能提示错误代码错误原因，能追踪源代码错误，多了哈希值。 |
+| nosource     | 同样生成外部 source-map。能提示错误代码错误原因，不能追踪源代码错误。防止源代码泄漏。 |
+| cheap        | 生成外部 source-map。能提示错误代码错误原因，能追踪源代码错误，提示到具体的一行。 |
+| cheap-module | 生成外部 source-map。能提示错误代码错误原因，能追踪源代码错误，提示到具体的行列。且加上 loader 中加入。 |
+
+开发环境选择：速度快（eval>inline>cheap）
+
+```js
+devtool: 'eval-cheap-source-map' // 精确到行速度贼快 > eval-source-map
+devtool: 'cheap-module-source-map' // 调试最友好 > cheap-source-map
+// 综上最好
+devtool: 'eval-source-map'
+```
+
+生产环境：源代码是否隐藏？调试友好？
+
+```js
+// 内联使体积更大所以生产环境不用内联
+// 下边两种隐藏源代码
+nosources-source-map // 全部隐藏
+hidden-source-map // 隐藏源代码不隐藏构建后代码, 会提示构建后代码错误
+// 综上最好
+source-map
+cheap-module-source-map
+```
+
+- 生产环境优化
+
+优化打包构建速度、优化代码运行性能（用户留存度）
+
+### oneOf
+
+在匹配 loader 时会进行多次匹配，使用 `oneOf` 表示一下数组中的 loader 仅会匹配一个，节省时间与功耗。
+
+```js
+const { resolve } = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin' );
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+// 定义 nodejs 环境变量: 决定使用 browserslist 的哪个环境 
+process.env.NODE_ENV = 'production';
+// 复用 loader 
+const commonCssLoader = [
+  MiniCssExtractPlugin.loader,
+  'css-loader',
+  { 
+    loader: 'postcss-loader',
+    options: {
+      ident: 'postcss', 
+      plugins: () => [require('postcss-preset-env')()] 
+    } 
+  } 
+];
+module.exports = {
+  entry: './src/js/index.js',
+  output: { filename: 'js/built.js', path: resolve(__dirname, 'build') },
+  module: { 
+    rules: [
+      {
+        // 以下 loader 只会匹配一个 节省时间与内存损耗
+        // 注意: 不能两个 loader 处理同一个文件
+        { // 在 package.json 中 eslintConfig --> airbnb 
+        		test: /\.js$/,
+        		exclude: /node_modules/,
+        		// 优先执行 不论放在哪里的位置!!!
+        		enforce: 'pre', 
+        		loader: 'eslint-loader',
+        		options: { fix: true }
+      		}
+      },
+      {
+        oneOf: [
+          { test: /\.css$/, use: [...commonCssLoader] },
+      		{ test: /\.less$/, use: [...commonCssLoader, 'less-loader'] },
+        	// 不能两个 loader 处理同一类文件 -- 提出
+      		/* { // 在 package.json 中 eslintConfig --> airbnb 
+        		test: /\.js$/,
+        		exclude: /node_modules/,
+        		// 优先执行 不论放在哪里的位置!!!
+        		enforce: 'pre', 
+        		loader: 'eslint-loader',
+        		options: { fix: true }
+      		}, */
+      		{
+        		test: /\.js$/,
+        		exclude: /node_modules/,
+        		loader: 'babel-loader',
+        		options: {
+          		presets: [
+            		[
+              		'@babel/preset-env',
+              		{
+                		useBuiltIns: 'usage', corejs: {version: 3},
+                		targets: { chrome:'60', firefox: '50' }
+              		}
+            		]
+          		]
+        		}
+      		},
+      		{ 
+        		test: /\.(jpg|png|gif)/,
+        		loader: 'url-loader',
+        		options: { limit: 8 * 1024, name: '[hash:10].[ext]', outputPath: 'imgs', esModule: false }
+      		},
+            { test: /\.html$/, loader: 'html-loader' },
+      		{ 
+        		exclude: /\.(js|css|less|html|jpg|png|gif)/,
+        		loader: 'file-loader',
+        		options: { outputPath: 'media' }
+      		}
+        ]
+      }	
+    ]
+  },
+  plugins:[ 
+    new MiniCssExtractPlugin({ filename: 'css/built.css' }),
+    new OptimizeCssAssetsWebpackPlugin(),
+    new HtmlWebpackPlugin({ 
+      template: './src/index.html',
+      minify: { collapseWhitespace: true, removeComments: true}
+    })
+  ],
+  mode: 'production' 
+};
+```
+
+### 缓存
+
+考虑生产环境能用 HMR 功能，因为 HMR 基于 devServer 。在 babel 进行翻译时，应该时更改文件变化而其他文件不变，此时应该开启 babel 缓存，将之前编译好的文件进行缓存处理。如果文件没有变化则直接使用缓存而不是再构建一次。
+
+```js
+...{ 
+  // babel 缓存
+  test: /\.js$/, 
+  exclude: /node_modules/, 
+  loader: 'babel-loader', 
+  options: { 
+    presets: [ 
+      [ 
+        '@babel/preset-env', 
+        { 
+          useBuiltIns: 'usage', 
+          corejs: { version: 3 },
+          targets: { chrome: '60', firefox: '50' } 
+        } 
+      ]
+    ],
+    // 开启 babel 缓存 
+    // 第二次构建时，会读取之前的缓存 
+    cacheDirectory: true 
+  } 
+},...
+```
+
+文件资源缓存修改文件名——增加 hash 值。**每次构建 webpack 生成唯一的 hash 值**。那么会因为 `.js` 和 `.css` 使用唯一一个 hash 值导致所有缓存失效（改动一个文件）。那么考虑 chunkhash 值，根据 chunk 生成的 hash 值，如果打包来**源于同一个 chunk** ，那么 hash 值一样。（所有根据入口文件被引入的文件都会生成一个 chunk）。最终选择 contenthash ，**根据文件内容生成 hash 值**，不同文件 hash 值一定不一样。
+
+```js
+const { resolve } = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin' );
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+// 定义 nodejs 环境变量：决定使用 browserslist 的哪个环境 
+process.env.NODE_ENV = 'production'; 
+// 复用 loader
+const commonCssLoader = [ 
+  MiniCssExtractPlugin.loader,
+  'css-loader',
+  { // 还需要在 package.json 中定义 browserslist
+    loader: 'postcss-loader',
+    options: {
+      ident: 'postcss',
+      plugins: () => [require('postcss-preset-env')()] } 
+  }
+];
+module.exports = { 
+  entry: './src/js/index.js',
+  output: {
+    // contenthash
+    filename: 'js/built.[contenthash:10].js',
+    path: resolve(__dirname, 'build')
+  },
+  module: {
+    rules: [
+      { // 在 package.json 中 eslintConfig --> airbnb
+        test: /\.js$/, exclude: /node_modules/,
+        // 优先执行 
+        enforce: 'pre',
+        loader: 'eslint-loader',
+        options: { fix: true } 
+      },
+      { 
+        // 以下 loader 只会匹配一个
+        // 注意：不能有两个配置处理同一种类型文件
+        oneOf: [
+          { test: /\.css$/, use: [...commonCssLoader] },
+          { test: /\.less$/, use: [...commonCssLoader, 'less-loader'] },
+          /*正常来讲，一个文件只能被一个 loader 处理。 当一个文件要被多个 loader 处理，那么一定要指定 loader 执行的先后顺序： 先执行 eslint 在执行 babel */
+          {
+            test: /\.js$/,
+            exclude: /node_modules/,
+            loader: 'babel-loader',
+            options:
+            {
+              presets:[
+                [
+                  '@babel/preset-env',
+                  {
+                    useBuiltIns: 'usage',
+                    corejs: { version: 3 },
+                    targets: { chrome: '60', firefox: '50' }
+                  }
+                ]
+              ],
+							// 开启 babel 缓存 
+							// 第二次构建时，会读取之前的缓存 
+              cacheDirectory: true
+            }
+          },
+          {
+            test: /\.(jpg|png|gif)/,
+            loader: 'url-loader',
+            options: { limit: 8 * 1024, name: '[hash:10].[ext]', outputPath: 'imgs', esModule: false } },
+          {
+            test: /\.html$/,
+            loader: 'html-loader'
+          },
+          {
+            exclude: /\.(js|css|less|html|jpg|png|gif)/,
+            loader: 'file-loader',
+            options: { outputPath: 'media' } 
+          } 
+        ] 
+      } 
+    ] 
+  },
+  plugins: [
+    // contenthash
+    new MiniCssExtractPlugin({ filename: 'css/built.[contenthash:10].css' }),
+    new OptimizeCssAssetsWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+      minify: { collapseWhitespace: true, removeComments: true } 
+    }) 
+  ],
+  mode: 'production',
+  devtool: 'source-map' 
+};
+```
+
+### tree shaking
+
+- 去除在应用程序中没有使用的代码（引用的源代码，第三方的库），使得应用体积更小。
+- 前提：使用 ES6 模块化、开启 production 环境。
+- 作用：减小体积，请求、加载速度更快
+- 注意：可能将未经引用的 CSS 代码也忽略。如在 package.json 中设置 `"sideEffects": false` 则所有代码都无副作用（可 tree shaking）会导致去除 `.css` 文件。应当修改为 `"sideEffects": ["*.css", "*.less"]`
+
+### code split
+
+代码分割主要进行于 `.js` 代码，完成按需加载。
+
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  // 单入口
+  // entry: './src/js/index.js',
+  entry: { // 多入口：有一个入口, 最终输出就有一个 bundle --> 有几个入口, 输出几个 bundle
+    index: './src/js/index.js',
+    test: './src/js/test.js' 
+  },
+  output: {
+    // [name]: 取文件名
+    filename: 'js/[name].[contenthash:10].js',
+    path: resolve(__dirname, 'build')
+  },
+  plugins: [
+    new HtmlWebpackPlugin({ template: './src/index.html', minify: { collapseWhitespace: true, removeComments: true } })
+  ],
+  mode: 'production'
+};
+```
+
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  // 单入口 
+  // entry: './src/js/index.js',
+  entry: {
+    index: './src/js/index.js',
+    test: './src/js/test.js'
+  },
+  output: {
+    // [name]：取文件名
+    filename: 'js/[name].[contenthash:10].js',
+    path: resolve(__dirname, 'build') 
+  },
+  plugins: [
+    new HtmlWebpackPlugin({ template: './src/index.html', minify: { collapseWhitespace: true, removeComments: true } }) ],
+  /*1. 可以将 node_modules 中代码单独打包一个 chunk 最终输出 2. 自动分析多入口 chunk 中，有没有公共的文件。如果有会打包成单独一个 chunk */
+  optimization: { splitChunks: { chunks: 'all' } },
+  mode: 'production'
+};
+```
+
+import 动态导入语法能将文件单独打包（注：不是按需导入）。
+
+```js
+import(/*webpackChunkName: 'test'*/'./test')
+.then(({mul,count}) => {
+  console.log(mul(2, 5));
+})
+```
+
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  // 单入口
+  entry: './src/js/index.js',
+  output: {
+    // [name]：取文件名
+    filename: 'js/[name].[contenthash:10].js',
+    path: resolve(__dirname, 'build') 
+  },
+  plugins: [
+    new HtmlWebpackPlugin({ template: './src/index.html', minify: { collapseWhitespace: true, removeComments: true } }) ],
+  /*1. 可以将 node_modules 中代码单独打包一个 chunk 最终输出 2. 自动分析多入口 chunk 中，有没有公共的文件。如果有会打包成单独一个 chunk */
+  optimization: { splitChunks: { chunks: 'all' } },
+  mode: 'production' 
+};
+```
+
+### lazy loading
+
+将代码分割语法放在异步函数中。
+
+```js
+// import { mul } from './test';
+document.getElementById('btn').onclick = function() {
+  // 懒加载 
+  // prefetch 预加载: 会在使用之前提前加载 js 文件 —— 等其他资源加载完毕, 浏览器空闲, 加载其他资源
+  // 正常加载可以认为并行加载
+  import(/*webpackChunkName: 'test', webpackPrefetch: true*/'./test').then({ mul } => {
+    console.log(mul(4, 5));
+  })
+}
+```
+
+### pwa
+
+pwa 又称渐进式网络开发应用程序（Progressive Web Apps）—— 离线可访问。通常使用 workbox ，在 webpack 中使用插件 workbox-webpack-plugin 。
+
+```js
+// package.json
+// 避免 eslint 不认识 window、navigator此类变量
+"eslintConfig": {
+  "extends": "airbnb-base",
+    "env": {
+      // 支持浏览器中变量
+      "browser": true
+    }
+}
+```
+
+```js
+// src/index.js
+...
+// 注意此处 serviceWorker 中 w 首字母大写
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceworker.register('/service-worker.js')
+    .then(() => {
+      console.log('sw注册成功~')
+    })
+    .catch(() => {
+      console.log('sw注册失败~')
+    })
+  })
+}
+```
+
+```js
+...
+plugins: [
+  new MiniCssExtractPlugin({ filename: 'css/built.[contenthash:10].css' }),
+  new OptimizeCssAssetsWebpackPlugin(),
+  new HtmlWebpackPlugin({
+    template: './src/index.html',
+    minify: { collapseWhitespace: true, removeComments: true }
+  }),
+  new WorkboxWebpackPlugin.GenerateSW({
+    /*1. 帮助 serviceworker 快速启动 2. 删除旧的 serviceworker 生成一个 serviceworker 配置文件~ */
+    clientsClaim: true,
+    skipWaiting: true 
+  })
+],...
+```
+
+上述的 sw 代码必须运行在服务器上，可通过 serve 快速启动服务器
+
+```zsh
+npm i serve -g
+serve -s build # 启动服务器
+```
+
+### 多进程打包
+
+Js 主线程引擎是单线程的，同一时间只能做一件事。可以通过多进程优化打包速度。
+
+```zsh
+# 下载安装包, 通常给 babel-loader 使用
+npm install --save-dev thread-loader
+```
+
+```js
+...{
+  test: /\.js$/,
+	exclude: /node_modules/,
+	use: [
+    /*开启多进程打包。 进程启动大概为 600ms，进程通信也有开销。 只有工作消耗时间比较长，才需要多进程打包 */
+    {
+      loader: 'thread-loader',
+      options: {
+        workers: 2 // 进程 2 个
+			}
+    },...
+```
+
+多进程也是双刃剑，进程启动大概 600ms ，进程通信也有开销。只有工作时间消耗比较长，才进行多进程打包。
+
+### externals
+
+防止将某些包打包进最终的 bundle.js 中。
+
+```js
+mode: 'production',
+externals: { 
+  // 拒绝 jQuery 被打包进来 
+  // 忽略库名 -- npm 包名
+  jquery: 'jQuery' 
+}
+```
+
+### dll
+
+如果对第三方库（jquery、react、vue...）打包成一个文件体积会太大，通过 dll 可以将库拆开打包成不同的 chunk 文件。
+
+```zsh
+# 下载插件
+npm i add-asset-html-webpack-plugin -D
+```
+
+```js
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
+const AddAssetHtmlWebpackPlugin = require('add-asset-html-webpack-plugin');
+module.exports = {
+  entry: './src/index.js',
+  output: {
+    filename: 'built.js', path: resolve(__dirname, 'build')
+  },
+  plugins: [
+    new HtmlWebpackPlugin({ template: './src/index.html' }),
+    // 告诉 webpack 哪些库不参与打包，同时使用时的名称也得变~ 
+    new webpack.DllReferencePlugin({ manifest: resolve(__dirname, 'dll/manifest.json') }),
+    // 将某个文件打包输出去，并在 html 中自动引入该资源 
+    new AddAssetHtmlWebpackPlugin({ filepath: resolve(__dirname, 'dll/jquery.js') }) ],
+  mode: 'production' 
+};
+```
+
+相比于 external 彻底不打包，需要 cdn 连接进来，而 dll 需要打包一次，将来不需要重复打包。
+
+## webpack 配置详情 
+
+### entry
+
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  entry: {
+    index: ['./src/index.js', './src/count.js'],
+    add: './src/add.js' 
+  },
+  output: { filename: '[name].js', path: resolve(__dirname, 'build') },
+  // 如果传入 template 会以某个文件为模板去创建 html; 直接写会创建空的新 html 文件
+  plugins: [new HtmlWebpackPlugin()],
+  mode: 'development'
+};
+```
+
+1. string --> './src/index.js'，单入口打包形成一个 chunk。 输出一个 bundle 文件。此时 chunk 的名称默认是 main。
+2. array --> ['./src/index.js', './src/add.js']，多入口所有入口文件最终只会形成一个 chunk，输出出去只有一个 bundle 文件。（一般只用在 HMR 功能中让 html 热更新生效） `react:['react', 'react-dom', 'react-router-dom']`
+3. object，多入口有几个入口文件就形成几个 chunk，输出几个 bundle 文件，此时 chunk 的名称是 key 值。
+4. 特殊用法：多入口打包成一个 chunk，再分别打包
+
+```js
+entry: { // bundle 是由 chunk 组成
+  // 最终只会形成一个chunk, 输出出去只有一个bundle文件
+  index: ['./src/index.js', './src/count.js'], 
+  // 形成一个chunk, 输出一个bundle文件。
+  add: './src/add.js'
+}
+```
+
+### output
+
+```js
+output: {
+  // 文件名称（指定名称+目录）
+  filename: 'js/[name].js',
+  // 输出文件目录（将来所有资源输出的公共目录）
+  path: resolve(__dirname, 'build'),
+  // 所有资源引入公共路径前缀 --> 'imgs/a.jpg' --> '/imgs/a.jpg'
+  publicPath: '/',
+  chunkFilename: 'js/[name]_chunk.js', // 指定非入口chunk的名称
+  library: '[name]', // 打包整个库后向外暴露的变量名
+  libraryTarget: 'window' // 变量名添加到哪个上 browser：window
+  // libraryTarget: 'global' // node：global
+  // libraryTarget: 'commonjs' // conmmonjs模块 exports
+},
+```
+
+### module
+
+### resolve
+
+### dev server 
+
+### optimization
