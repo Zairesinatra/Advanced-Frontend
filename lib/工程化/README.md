@@ -1362,8 +1362,73 @@ output: {
 
 ### module
 
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  entry: './src/index.js',
+  output: { filename: 'js/[name].js', path: resolve(__dirname, 'build') },
+  module: {
+    rules: [
+      // loader 的配置
+      { test: /\.css$/,
+       // 多个 loader 用 use
+       use: ['style-loader', 'css-loader']
+      },
+      { test: /\.js$/,
+       // 排除 node_modules 下的 js 文件
+       exclude: /node_modules/,
+       // 只检查 src 下的 js 文件
+       include: resolve(__dirname, 'src'),
+       // 优先执行
+       enforce: 'pre',
+       // 延后执行 // enforce: 'post',
+       // 单个 loader 用 loader
+       loader: 'eslint-loader',
+       options: {}
+      },
+      { // 以下配置只会生效一个
+        oneOf: []
+      }
+    ]
+  },
+  plugins: [new HtmlWebpackPlugin()],
+  mode: 'development'
+};
+```
+
 ### resolve
+
+```js
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  entry: './src/js/index.js',
+  output: { filename: 'js/[name].js', path: resolve(__dirname, 'build') },
+  module: { rules: [ { test: /\.css$/, use: ['style-loader', 'css-loader'] } ] },
+  plugins: [new HtmlWebpackPlugin()],
+  mode: 'development',
+  // 解析模块的规则
+  resolve: {
+    // 配置解析模块路径别名: 优点简写路径 缺点路径没有提示
+    alias: { $css: resolve(__dirname, 'src/css') },
+    // 配置省略文件路径的后缀名
+    extensions: ['.js', '.json', '.jsx', '.css'],
+    // 告诉 webpack 解析模块是去找哪个目录
+    modules: [resolve(__dirname, '../../node_modules'), 'node_modules']
+  }
+};
+```
 
 ### dev server 
 
+```js
+
+```
+
 ### optimization
+
+```js
+
+```
+
