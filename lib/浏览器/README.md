@@ -121,7 +121,7 @@
 </form>
 ```
 
-- 非装饰性图片必加 alt
+- 非装饰性图片必加 `alt`
 
 ```html
 <img src="xxx.jpg" alt="..." />

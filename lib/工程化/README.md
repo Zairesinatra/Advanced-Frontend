@@ -1414,7 +1414,7 @@ module.exports = {
     alias: { $css: resolve(__dirname, 'src/css') },
     // 配置省略文件路径的后缀名
     extensions: ['.js', '.json', '.jsx', '.css'],
-    // 告诉 webpack 解析模块是去找哪个目录
+    // 告诉 webpack 解析模块是去找哪个目录 -- 当前目录找不到会去上一层目录
     modules: [resolve(__dirname, '../../node_modules'), 'node_modules']
   }
 };
@@ -1423,12 +1423,115 @@ module.exports = {
 ### dev server 
 
 ```js
-
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+module.exports = {
+  entry: './src/js/index.js',
+  output: { filename: 'js/[name].js', path: resolve(__dirname, 'build') },
+  module: { rules: [ { test: /\.css$/, use: ['style-loader', 'css-loader'] } ] },
+  plugins: [new HtmlWebpackPlugin()],
+  mode: 'development',
+  resolve: {
+    alias: { $css: resolve(__dirname, 'src/css') },
+    extensions: ['.js', '.json', '.jsx', '.css'],
+    modules: [resolve(__dirname, '../../node_modules'), 'node_modules']
+  },
+  devServer: {
+    // 运行代码的目录 contentBase: resolve(__dirname, 'build'),
+    // 监视 contentBase 目录下的所有文件，一旦文件变化就会 reload
+    watchContentBase: true,
+    watchOptions: {
+      // 忽略文件 —— 高效
+      ignored: /node_modules/
+    },
+    // 启动 gzip 压缩
+    compress: true,
+    // 端口号
+    port: 5000,
+    // 域名
+    host: 'localhost',
+    // 自动打开浏览器
+    open: true,
+    // 开启 HMR 功能
+    hot: true,
+    // 不要显示启动服务器日志信息
+    clientLogLevel: 'none',
+    // 除了一些基本启动信息以外，其他内容都不要显示
+    quiet: true,
+    // 如果出错了，不要全屏提示~
+    overlay: false,
+    // 服务器代理 --> 解决开发环境跨域问题
+    proxy: {
+      // 一旦 devServer(5000)服务器接受到 /api/xxx 的请求，就会把请求转发到另外一个服务器 (3000)
+      '/api': { target: 'http://localhost:3000',
+               // 发送请求时，请求路径重写：将 /api/xxx --> /xxx （去掉/api）
+               pathRewrite: { '^/api': '' }
+              }
+    }
+  }
+};
 ```
 
 ### optimization
 
 ```js
-
+const { resolve } = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+module.exports = {
+  entry: './src/js/index.js',
+  output: {
+    filename: 'js/[name].[contenthash:10].js',
+    path: resolve(__dirname, 'build'),
+    chunkFilename: 'js/[name].[contenthash:10]_chunk.js'
+  },
+  module: { rules: [ { test: /\.css$/, use: ['style-loader', 'css-loader'] } ] },
+  plugins: [new HtmlWebpackPlugin()],
+  mode: 'production',
+  resolve: {
+    alias: {
+      $css: resolve(__dirname, 'src/css')
+    },
+    extensions: ['.js', '.json', '.jsx', '.css'],
+    modules: [resolve(__dirname, '../../node_modules'), 'node_modules']
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all' // 默认值，可以不写~ ,
+      minSize: 30 * 1024, // 分割的 chunk 最小为 30kb
+      maxSize: 0, // 最大没有限制
+      minChunks: 1, // 要提取的 chunk 最少被引用 1 次
+      maxAsyncRequest: 5, // 按需加载并行加载文件最大数量
+      maxInitialRequests: 3, // 入口js文件最大并行请求数量
+      automaticNameDelimiter: '~' , // 名称连接符
+      name: true, // 可以命名规则
+      cacheGroups: { // 分割chunk组
+      	vendors：{ // node_modules文件被打包到 vendors 组的 chunk 中 --> vendors~xxx.js
+      		test: /[||/]node_modules[\\/]/,
+      		priority: -10
+   			},
+    		default: {
+      		minChunks: 2, // 被提取的 chunk 至少被引用两次
+          priority: -10,
+          // 当前打包木块和之前被提取模块是同一个则可以复用
+          reuseExistingChunk: true
+    		}
+    	}
+    },
+    // 将当前模块的记录其他模块的 hash 单独打包为一个文件 runtime
+    // 解决：修改 a 文件导致 b 文件的 contenthash 变化 -- 某一个文件修改导致 hash 变化导致缓存失效
+    runtimeChunk: { name: entrypoint => `runtime-${entrypoint.name}` },
+    minimizer: [
+      // 配置生产环境的压缩方案：js 和 css
+      new TerserWebpackPlugin({
+        // 开启缓存
+        cache: true,
+        // 开启多进程打包
+        parallel: true,
+        // 启动 source-map
+        sourceMap: true })
+    ]
+  }
+}; 3.
 ```
 
