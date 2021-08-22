@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>debounce</title>
+</head>
+<body>
+    <input type="text" class="ipt">
+    <script>
+        const ipt = document.querySelector('.ipt')
+        // let timer 
+        // ipt.onkeyup = function(){
+        //     if(timer){
+        //         clearTimeout(timer)
+        //     }
+        //     timer = setTimeout(()=>{
+        //         console.log(ipt.value)
+        //     },2000)
+        // }
+        // 上述可以封装为一个debounce函数
+        function debounce(fn,delay=2000) {
+            let timer;
+            return ()=>{
+                if(timer){clearTimeout(timer)} // 有timer清了
+                timer = setTimeout(() => { // 没timer加个
+                    fn();
+                }, delay);
+            }
+        }
+        ipt.onkeyup = debounce(()=>{console.log(ipt.value)},1500) // 1500ms后回调执行
+    </script>
+</body>
+</html>

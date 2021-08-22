@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>throttle</title>
+    <style>
+        .zs{
+        width: 50px;
+        height: 50px;
+        background-color: #424242;
+        border-radius: 50%;
+        color:red;
+        font-size: 5px;
+        text-align: center;
+    }
+    </style>
+</head>
+<body>
+    <div class="zs" draggable="true">zy</div>
+    <script>
+        const zs = document.querySelector('.zs')
+        // let timer = null;
+        // zs.ondrag = function(e){
+        //     if(timer){return;}
+        //     timer = setTimeout(()=>{
+        //         console.log(e.offsetX,e.offsetY)
+        //         timer = null
+        //     },2000)
+        // }
+        function throttle(fn,delay=2000){
+            let timer
+            return function(){
+                if(timer) {return;}
+                // console.log(arguments)
+                fn.apply(this,arguments)
+                timer = setTimeout(()=>{fn;timer=null},delay)
+            }
+        }
+        zs.ondrag = throttle((zy)=>{console.log(zy.offsetX,zy.offsetY)},1500)
+    </script>
+</body>
+</html>

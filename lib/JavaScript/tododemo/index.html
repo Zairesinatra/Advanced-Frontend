@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>面向对象 Tab</title>
+    <link rel="stylesheet" href="./styles/tab.css">
+    <!-- 加入右上标的叉叉 -->
+    <link rel="stylesheet" href="./styles/style.css">
+</head>
+
+<body>
+    <main>
+        <!-- 标题 -->
+        <h4>
+            zs代办日常
+        </h4>
+        <!-- 选择栏:tab标签和加号框 -->
+        <div class="tabsbox" id="tab">
+            <!-- tab 标签 -->
+            <nav class="fisrstnav">
+                <ul>
+                    <li class="liactive"><span>Todo1</span><span class="iconfont icon-guanbi"></span></li>
+                    <li><span>Todo2</span><span class="iconfont icon-guanbi"></span></li>
+                    <li><span>Todo3</span><span class="iconfont icon-guanbi"></span></li>
+                </ul>
+                <div class="tabadd">
+                    <span>+</span>
+                </div>
+            </nav>
+
+            <!-- tab 内容 -->
+            <div class="tabscon">
+                <section class="conactive">Todo</section>
+                <section>Todo</section>
+                <section>Todo</section>
+            </div>
+        </div>
+    </main>
+    <script src="js/tab.js"></script>
+</body>
+ 
+</html>
