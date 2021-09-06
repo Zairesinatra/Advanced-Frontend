@@ -978,7 +978,7 @@ fn3()
 
 ## 五、JS异步之宏队列与微队列
 
-![img](https://img-blog.csdnimg.cn/20200703144207979.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzQwNTA4ODMy,size_16,color_FFFFFF,t_70)
+![img](/Users/xieziyi/zairesinatra/zs-record/Advanced-Frontend/lib/异步/assets/eventloop.png)
 
 1. JS 中用来存储待执行回调函数的队列包含2个不同特定的队列
 

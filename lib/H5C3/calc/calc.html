@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calc</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        div {
+            height: 100px;
+            width: 200px;
+            /* 
+            响应式布局视口单位 vw、vh;1vw = 视口宽度的1%;1vh = 视口高度的1%
+            vw = view width
+            vh = view height
+             */
+            padding-top: calc(50vh - 100px/2);
+            padding-left: calc(50vw - 200px/2);
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <span>zairesinatra's ???</span>
+        <img src="https://res.cloudinary.com/dzb9ldnvl/image/upload/v1622656923/blog/nonocat_feqccv.webp" alt="zscat">
+    </div>
+</body>
+</html>

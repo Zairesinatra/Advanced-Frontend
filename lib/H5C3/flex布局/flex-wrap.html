@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flex-wrap</title>
+    <style>
+        div{
+            display: flex;
+            width: 600px;
+            height: 400px;
+            background-color: #00ADF6;
+            /* flex布局默认的子元素是不换行的,如果撞不开会自动缩小子元素的宽度 */
+            /* 默认不换行相当于 flex-wrap:nowrap */
+            flex-wrap:nowrap;
+        }
+        div span{
+            width: 150px;
+            height: 100px;
+            background-color: #00B26A;
+            color: #fff;
+            margin: 3px;
+            
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <span>x</span>
+        <span>z</span>
+        <span>y</span>
+        <span>z</span>
+        <span>s</span>
+    </div>
+</body>
+</html>

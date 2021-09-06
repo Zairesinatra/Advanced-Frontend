@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>:</title>
+    <style>
+        /* anchor */
+        /* 直接绑定的DOM元素 */
+        a:link {color:#06B4FE;} /* 未访问的链接 */
+        a:visited {color:#424242;} /* 已访问的链接 */
+        /* a:hover 必须被置于 a:link 和 a:visited 之后有效 */
+        a:hover {color:#FB4B63;} /* 鼠标划过链接 */
+        a:active {color:#00B26A;} /* 已选中的链接 */ /* 伪类匹配被用户激活的元素。让页面能在浏览器监测到激活时给出反馈。当用鼠标交互时，它代表的是用户按下按键和松开按键之间的时间 */
+        /* a:active 必须被置于 a:hover 之后，才有效 */
+
+        /* 匹配所有 <p> 元素中的第一个 <i> 元素 */
+        p > i:first-child{
+            color:blue;
+        } 
+
+        /* :lang 类为属性值为 no 的q元素定义引号的类型： */
+        q:lang(zs){
+            quotes: "~xzy " " xzy~";
+        }
+
+        /* focus */
+        input:focus{
+            background-color:#7B828C;
+        }
+    </style>
+</head>
+<body>
+    <!-- CSS伪类是用来添加一些选择器的特殊效果 -->
+    <!-- 伪类的语法：selector:pseudo-class {property:value;} -->
+    <!-- CSS类也可以使用伪类：selector.class:pseudo-class {property:value;} -->
+
+    <!-- 1.anchor伪类 -->
+    <a href="#">锚点链接可以变色哦</a>
+
+    <!-- 2.匹配所有 <p> 元素中的第一个 <i> 元素 -->
+    <p>I am <i>zairesinatra</i> xzy I am <i>zairesinatra</i> xzy </p>
+    <p>I am <i>zairesinatra</i> xzy I am <i>zairesinatra</i> xzy </p>
+
+    <!-- 3.CSS - :lang 伪类 -->
+    <p>Some text <q lang="zs">zairesinatra</q> Some text.</p>
+
+    <!-- 4.输入框focus -->
+    <form action="">
+        First name: <input type="text" name="fname" /><br>
+        Last name: <input type="text" name="lname" /><br>
+    <input type="submit" value="提交" />
+
+    <!-- Firefox扩展是为基于Mozilla Firefox网页浏览器设计的附加组件。 -->
+    <!-- CSS3中新增了一些属性，例如box-reduis、box-orient、text-overflow等等，而这些属性在以往的版本中是不存在的，或者不被支持的，因此，针对不同的浏览器，规定其内核名称让它们可以对这些新增属性进行解析。这看上去是一个合理的解释，即-moz-是针对firefox的，-webkit-是针对safari和chrome的。 -->
+</body>
+</html>

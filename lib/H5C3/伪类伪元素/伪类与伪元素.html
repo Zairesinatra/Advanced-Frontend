@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伪类与伪元素</title>
+    <style>
+        ul li {
+            list-style-type: none;
+        }
+        li:nth-child(2n+1) {color: #FF4D4D;}
+        /* 伪元素添加了一个伪元素对象而不会占用DOM节点 */
+        p::first-letter {color: #FF4D4D;}
+    </style>
+</head>
+<body>
+    <ul>
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+    <p>
+        zairesinatra你可以<br>结合很多的东西去<br>实现你想做的事。
+    </p>
+</body>
+</html>

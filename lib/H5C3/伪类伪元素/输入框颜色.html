@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>伪类伪元素</title>
+    <style>
+        input {
+            font-size: 3em;
+            width: 100px;
+            height: 50px;
+            border-radius: 10px;
+        }
+        /* 伪类可以进行多个拼接 */
+        /* focus伪类表示取消焦点则不显示 */
+        input:out-of-range:focus {
+            background-color: #FF4D4D;
+        }
+        /* 在相邻同胞元素内容后面加上 */
+        input:out-of-range + span::after {content: '超出范围'}
+        /* 伪元素不允许与伪元素拼接 => × h2::before::after {content: '...'} */
+        /* 一行仅能有一个伪元素 */
+    </style>
+</head>
+<body>
+    <b>zs请输入</b>
+    <input type="number" min="1" max="40">
+    <span>结果</span>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>item-flex</title>
+    <style>
+        section{
+            display: flex;
+            width: 60%;
+            height: 150px;
+            background-color: #00B26A;
+            margin: 0 auto;
+        }
+        section div:nth-child(1){
+            width: 100px;
+            height: 150px;
+            background-color: #DD0000;
+        }
+        section div:nth-child(2){
+            flex: 1;
+            background-color: #06B4FE;
+        }
+        section div:nth-child(3){
+            width: 100px;
+            height: 150px;
+            background-color: #424242;
+        }
+
+        p{
+            display: flex;
+            width: 60%;
+            height: 150px;
+            background-color: #D086F5;
+            margin: 100px auto;
+        }
+        p span{
+            flex:1
+        }
+        p span:nth-child(2){
+            flex:2;
+            background-color: #FB4B63;
+        }
+    </style>
+</head>
+<body>
+    <!-- 左右固定中间自适应-这就是很多移动端的导航配适（京东、淘宝手机端） -->
+    <section>
+        <div></div>
+        <!-- 左固定右固定，中间自适应 -->
+        <!-- 圣杯布局 -->
+        <div></div>
+        <div></div>
+    </section>
+    <p>
+        <span>x</span>
+        <span>z</span>
+        <span>y</span>
+    </p>
+</body>
+</html>

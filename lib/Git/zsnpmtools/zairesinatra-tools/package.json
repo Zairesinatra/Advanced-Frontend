@@ -1,0 +1,8 @@
+{
+    "name":"zairesinatra-tools",
+    "version":"1.0.0",
+    "main":"index.js",
+    "description":"提供了格式化时间,HTMLEscape的功能",
+    "keywords":["zairesinatra","dataFormat","escape"],
+    "licence":"ISC"
+}

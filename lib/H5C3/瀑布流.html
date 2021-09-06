@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *, body {
+            margin: 0;
+            padding: 0;
+            background: #e5e5e5;
+        }
+        .outer {
+            width: 1440px;
+            margin: 20px auto;
+            /* 参数一为列宽度,参数二为分成份数 */
+            columns: auto 3;
+            /* columns: 16rem auto; */
+            column-gap: 30px;
+        }
+        /* :first-child 选择器与前选择器之间不能空格 */
+        .outer:first-child{
+            margin-top: 0;
+        }
+        .outer .item {
+            width: 100%;
+            break-inside: avoid;
+            margin-bottom: 30px;
+        }
+
+        .outer .item img {
+            width: 100%;
+        }
+
+        .outer h2 {
+            padding: 8px 0;
+        }
+
+        .outer P {
+            color: #555;
+        }
+        /* @media规则用于媒体查询以对不同的媒体类型/设备应用不同的样式 */
+        /* 需要写在css后面 */
+        @media screen and (min-width: 1225px) and   (max-width: 1440px) {
+            .outer {
+                /* 
+                    vw : 1vw 等于视窗宽度的1%
+                    vh : 1vh 等于视窗高度的1%
+                    vmin : 选取 vw 和 vh 中最小的那个
+                    vmax : 选取 vw 和 vh 中最大的那个
+                */
+                width: 100vw;
+                columns: 4;
+                column-gap: 20px;
+            }
+        }
+        @media screen and (min-width: 1040px) and (max-width: 1225px) {
+            .outer {
+                width: 96vw;
+                columns: 3;
+                column-gap: 20px;
+            }
+        }
+        @media screen and (min-width: 700px) and (max-width: 1040px) {
+            .outer {
+                width: 96vw;
+                columns: 2;
+                column-gap: 20px;
+            }
+        }
+
+        @media screen and (max-width: 700px) {
+            .outer {
+                width: 96vw;
+                columns: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="outer" >
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x600"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x300"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x500"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x400"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x700"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x200"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x600"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x500"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x800"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x200"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x600"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x300"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x400"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x600"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x200"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x300"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+    <div class="item">
+      <img src="http://source.unsplash.com/random/400x400"/>
+      <h2>Title Goes Here</h2>
+      <p>
+        I know you can do better.我知道你可以做得更好。Iknow you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.我知道你可以做得更好。I know you can do better.
+      </p>
+    </div>
+</div>
+</body>
+</html>

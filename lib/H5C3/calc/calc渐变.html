@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#grad1 {
+  height: 100px;
+  /* background-image: linear-gradient(direction, color-stop1, color-stop2, ...); */
+  /* direction: 定义渐变效果的起点和方向(或角度) */
+  /* color-stop1, color-stop2,...在其间呈现平滑过渡的颜色 */
+  /* 其后是一个可选的停止位置(0％ 到 100％ 之间的百分比值，或沿渐变轴的长度值) */
+  background-image: linear-gradient(calc(90deg * 1), #FF4D4D, #06B4FE);
+}
+#grad2 {
+  height: 100px;
+  background-image: linear-gradient(90deg, #FF4D4D, #06B4FE);
+}
+#grad3 {
+  height: 100px;
+  background-image: linear-gradient(calc(90deg * 2), #FF4D4D, #06B4FE);
+}
+#grad4 {
+  height: 100px;
+  background-image: linear-gradient(180deg, #FF4D4D, #06B4FE);
+}
+</style>
+</head>
+<body>
+
+<div id="grad1" style="color:white;text-align:center;">calc => 90deg</div><br>
+<div id="grad2" style="color:white;text-align:center;">90deg</div><br>
+<div id="grad3" style="color:white;text-align:center;">calc => 180deg</div><br>
+<div id="grad4" style="color:white;text-align:center;">180deg</div>
+<p><b>注释：</b>Internet Explorer 9 以及更早的版本不支持渐变。</p>
+
+</body>
+</html>

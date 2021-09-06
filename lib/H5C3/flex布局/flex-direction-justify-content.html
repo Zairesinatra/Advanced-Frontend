@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>flexfirstsight</title>
+    <style>
+        div{
+            /* 给父亲添加flex属性 */
+            display: flex;
+            width: 80%;
+            height: 300px;
+            background-color:#00ADF6;
+            justify-content: space-around;
+            /* 默认的主轴是x轴 */
+            /* 元素跟着主轴来排列的 */
+            /* row\row-reverse\column\column-reverse */
+            flex-direction: row;
+            /* justify-content设置主轴上子元素的排列方式 */
+            /* 注意justify-content和flex-direction:row-reverse不同 */
+            /* justify-content: flex-end; */
+            /* justify-content: center; */
+            /* justify-content: space-around; */
+            /* 先两边贴边再分配剩余的空间 */
+            justify-content: space-between;
+        }
+        div span{
+            /* width: 150px; */
+            height: 100px;
+            background-color: #00B26A;
+            margin: 3px;
+            
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <!-- 行内元素不写值看不见 -->
+        <span>x</span>
+        <span>z</span>
+        <span>y</span>
+        <span>z</span>
+        <span>s</span>
+    </div>
+</body>
+</html>

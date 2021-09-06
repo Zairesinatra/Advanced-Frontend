@@ -1,0 +1,12 @@
+body {
+    ang: 20deg;
+    background-image:
+        /* linear-gradient() 函数用于创建一个表示两种或多种颜色线性渐变的图片 */
+        linear-gradient(calc(let(ang) * 10), rgba(255, 0, 0, .8), rgba(255, 0, 0, 0) 70.71%),
+        /* linear-gradient(calc((--t) * 20), rgba(0, 255, 0, .8), rgba(0, 255, 0, 0) 70.71%),
+        linear-gradient(calc(var(--t) * 30), rgba(0, 0, 255, .7), rgba(0, 0, 255, 0) 70.71%),
+        linear-gradient(calc(var(--t) * 30), rgba(0, 0, 255, .7), rgba(0, 0, 255, 0) 70.71%),
+        linear-gradient(calc(var(--t) * 30), rgba(0, 0, 255, .7), rgba(0, 0, 255, 0) 70.71%),
+        linear-gradient(calc(var(--t) * 30), rgba(0, 0, 255, .7), rgba(0, 0, 255, 0) 70.71%),
+        linear-gradient(calc(var(--t) * 40), rgba(255, 0, 0, .8), rgba(0, 0, 0, 255) 70.71%), */
+}

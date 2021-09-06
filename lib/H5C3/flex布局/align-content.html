@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        div{
+            display: flex;
+            width: 800px;
+            height: 400px;
+            background-color: #00ADF6;
+            /* 换行 */
+            flex-wrap: wrap;
+            /* 因为换行，侧轴子元素对齐方式我们使用align-content */
+            /* align-content: flex-start; */
+            /* align-content: center; */
+            /* align-content: space-around; */
+            align-content: space-between;
+        }
+        div span{
+            width: 150px;
+            height: 100px;
+            background-color: #00B26A;
+            color: #fff;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <span>x</span>
+        <span>z</span>
+        <span>y</span>
+        <span>z</span>
+        <span>s</span>
+        <span>6</span>
+    </div>
+</body>
+</html>
