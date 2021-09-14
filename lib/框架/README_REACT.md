@@ -511,7 +511,7 @@ ReactDOM.render(<Demo/>, document.getElementById('test'))
 
 ### 使用 `React.createRef()`
 
- `React.createRef()` 调用后可以返回一个容器，该容器可以存储被 ref 所标识的节点。再把 ref 当前所在的节点存储到容器中。但是此容器是"专人专用"的。
+`React.createRef()` 调用后可以返回一个容器，该容器可以存储被 ref 所标识的节点。再把 ref 当前所在的节点存储到容器中。但是此容器是"专人专用"的。
 
 ```jsx
 class Demo extends React.component{
@@ -535,6 +535,263 @@ class Demo extends React.component{
   }
 }
 ReactDOM.render(<Demo/>, document.getElementById('test'))
+```
+
+### 非受控组件
+
+- 借助于 ref，使用元素 DOM 方式获取表单元素值，ref 的作用是获取 DOM 或者组件
+- 调用 `React.createRef()` 方法创建ref对象
+
+```jsx
+constructor() {
+  super();
+  this.自定义Ref = React.createRef()
+}
+```
+
+- 将创建好的 ref 对象添加到文本框中
+
+```jsx
+<input type="text" ref={this.自定义Ref}>
+```
+
+- 通过 ref 对象获取到文本框的值
+
+```jsx
+class App extends React.Component {
+    constructor(){
+        super()
+        // 创建 ref
+        // txtRef自定义
+        this.txtRef = React.createRef()
+    }
+    // 获取文本框的值
+    getTxt =() => {
+        console.log(this.txtRef.current.value)
+    }
+    render(){
+        return (
+          <div>
+            <input type ="text" ref={this.txtRef} />
+            <button onClick ={this.getTxt}>获取值</button>
+          </div>
+        )
+    }
+}
+```
+
+### 受控组件📍
+
+```jsx
+// 非受控组件的特点是现用现取
+class Login extends React.component{
+  handleSubmit = (event) => {
+    event.preventDefault() // 阻止表单提交
+    const {username, password} = this
+    alert(`您输入的帐号是：${username.value}，请确认密码：${password.value}`)
+  }
+  render() {
+    return (
+    	<form onSubmit={this.handleSubmit}>
+      	用户名：<input ref={c => this.username = c} type="text" name="username"></input>
+        密码：<input ref={c => this.password = c} type="password" name="password"></input>
+        <button>登录</button>
+      </form>
+    )
+  }
+}
+ReactDOM.render(<Login />, document.getElementById('test'))
+```
+
+```jsx
+// 受控组件 - 输入类的 DOM 随着输入就可以把改变的内容维护到状态,需要用再从状态内取出(类似双向数据绑定,但是需要自定义事件)
+// 优势也就省略了上述的 ref
+class Login extends React.component{
+  handleSubmit = (event) => {
+    event.preventDefault() // 阻止表单提交
+    const {username, password} = this.state
+    alert(`您输入的帐号是：${username}，请确认密码：${password}`)
+  }
+  state = { // 初始化状态
+    username: '', // 用户名
+    password: '' // 密码
+  }
+	saveUsername = (event) => { // 保存帐号到状态中
+    this.setState({username:event.target.value})
+  }
+  savePassword = (event) => { // 保存秘密到状态中
+    this.setState({password:event.target.value})
+  }
+  render() {
+    return (
+    	<form onSubmit={this.handleSubmit}>
+      	用户名：<input onChange={this.saveUsername} type="text" name="username"></input>
+        密码：<input onChange={this.savePassword} type="password" name="password"></input>
+        <button>登录</button>
+      </form>
+    )
+  }
+}
+ReactDOM.render(<Login />, document.getElementById('test'))
+```
+
+**表单处理**是受控组件的一个典型用例。HTML中的表单元素是可输入的，也就是有自己的可变状态（冲突）。而 React 中可变状态通常保存在 state 中，并且只能通过`setState()` 方法来修改（冲突）。React 将 `state` 与表单元素值 `value` 绑定在一起，**由 `state` 的值来控制表单元素的值**（本来各自管理，现在合二为一）。综上**受控组件就是其值受到 React 控制的表单元素**
+
+👍如果一个函数符合以下规范的任意一种，那么这个函数就是**高阶函数**：1. 若 A 函数接收的参数是一个函数，那么 A 就可以称为高阶函数；2. 若 A 函数调用的结果依然是一个函数，那么 A 就可以称为高阶函数。常见的高阶函数有 `Promise、setTimeout、arr.map()`。
+
+👍**函数的柯里化**：通过函数调用继续返回函数的方式，实现多次接收参数最后返回统一的处理方式。
+
+```js
+function sum(a) {return (b) => {return (c) => {return a+b+c}}}
+console.log(sum(1)(2)(3)); // 6
+```
+
+```jsx
+// 柯里化实现
+class Login extends React.component{
+  handleSubmit = (event) => {
+    event.preventDefault() // 阻止表单提交
+    const {username, password} = this.state
+    alert(`您输入的帐号是：${username}，请确认密码：${password}`)
+  }
+  state = { // 初始化状态
+    username: '', // 用户名
+    password: '' // 密码
+  }
+	saveFormData = (dataType) => { // 保存帐号到状态中
+    return (event) => { // event是react帮助生成的事件对象
+      this.setState({[dataType]: event.target.value})
+    }
+  }
+  render() {
+    return (
+    	<form onSubmit={this.handleSubmit}>
+      	用户名：<input onChange={this.saveFormData('username')} type="text" name="username"></input>
+        密码：<input onChange={this.saveFormData('password')} type="password" name="password"></input>
+        <button>登录</button>
+      </form>
+    )
+  }
+}
+ReactDOM.render(<Login />, document.getElementById('test'))
+```
+
+```jsx
+// 不使用柯里化
+class Login extends React.component{
+  handleSubmit = (event) => {
+    event.preventDefault() // 阻止表单提交
+    const {username, password} = this.state
+    alert(`您输入的帐号是：${username}，请确认密码：${password}`)
+  }
+  state = { // 初始化状态
+    username: '', // 用户名
+    password: '' // 密码
+  }
+	saveFormData = (dataType, value) => { // 保存帐号到状态中
+    this.setState({[dataType]: value})
+  }
+  render() {
+    return (
+    	<form onSubmit={this.handleSubmit}>
+        {/* 思路:必须把!! saveFormData 调用返回的函数 !!交给onChange作为回调才可 */}
+      	用户名：<input onChange={event=>this.saveFormData('username',event.target.value)} type="text" name="username"></input>
+        密码：<input onChange={event=>this.saveFormData('password',event.target.value)} type="password" name="password"></input>
+        <button>登录</button>
+      </form>
+    )
+  }
+}
+ReactDOM.render(<Login />, document.getElementById('test'))
+```
+
+#### 使用步骤
+
+- 在state中添加一个状态，作为表单元素的value值
+
+```jsx
+state = { txt: '' }
+```
+
+```jsx
+<input type="text" value={this.state.txt} onChange = {e => this.setState({txt: e.target.value})} />
+```
+
+- 给表单元素绑定change事件，将表单元素的值设置为state的值
+
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+
+class App extends React.Component {
+  state = {
+    txt: 'zsxzy',
+    content: 'zairesinatra',
+    city: 'sandiego',
+    isChecked: false
+  }
+  handleChange = (e) => {
+    this.setState({
+      txt: e.target.value
+    })
+  }
+  handleContent = (e) => {
+    this.setState({
+      content: e.target.value
+    })
+  }
+  handleselect = (e) => {
+    this.setState({
+      city: e.target.value
+    })
+  }
+  handleCheck = (e) => {
+    this.setState({
+      isChecked: e.target.checked
+    })
+  }
+  // select中的value表示自动选择同value属性的option
+  // checkbox须在input框中,checked进行属性绑定,handleChecked进行状态控制
+  render() {
+    return (
+      <div>
+        <input type="text" value = {this.state.txt} onChange={this.handleChange}></input>
+        <br></br>
+        <textarea value={this.state.content} onChange={this.handleContent}></textarea>
+        <br></br>
+        <select value={this.state.city} onChange={this.handleselect}>
+          <option value="changsha">1</option>
+          <option value="sandiego">2</option>
+          <option value="harbin">3</option>
+        </select>
+        <br></br>
+        <input type="checkbox" checked={this.state.isChecked} onChange={this.handleCheck}></input>
+      </div>
+    )
+  }
+}
+
+ReactDOM.render(<App />,document.getElementById('root'));
+```
+
+#### 多表单元素优化
+
+每个表单元素都有一个单独的事件处理函数较为繁琐，可以使用一个事件处理程序同时处理多个表单元素
+
+- 给表单元素添加 `name` 属性（用来区分是哪一个表单），名称与 `state` 相同（用来更新数据的）
+- 根据表单元素类型来获取对应值 `(e.target.type)`
+- 在触发事件处理程序中通过 `[name]` 来修改对应的 `state`
+
+```jsx
+inputChange = (e) => {
+   let value = e.target.type == 'checkbox' ? e.target.checked : e.target.value;
+   this.setState({
+       [e.target.name]: value
+   })
+}
+<input type="text" value={this.state.txt} name="txt" onChange={this.inputChange}/>
+<input type="checkbox" value={this.state.isChecked} name="isChecked" onChange={this.inputChange}/>
 ```
 
 ## React事件处理
@@ -879,278 +1136,6 @@ girl.callme(); // this 指向实际调用该方法的对象--Misaki
   }
 ```
 
-## 受控组件📍
-
-```jsx
-// 非受控组件的特点是现用现取
-class Login extends React.component{
-  handleSubmit = (event) => {
-    event.preventDefault() // 阻止表单提交
-    const {username, password} = this
-    alert(`您输入的帐号是：${username.value}，请确认密码：${password.value}`)
-  }
-  render() {
-    return (
-    	<form onSubmit={this.handleSubmit}>
-      	用户名：<input ref={c => this.username = c} type="text" name="username"></input>
-        密码：<input ref={c => this.password = c} type="password" name="password"></input>
-        <button>登录</button>
-      </form>
-    )
-  }
-}
-ReactDOM.render(<Login />, document.getElementById('test'))
-```
-
-```jsx
-// 受控组件 - 输入类的 DOM 随着输入就可以把改变的内容维护到状态,需要用再从状态内取出(类似双向数据绑定,但是需要自定义事件)
-// 优势也就省略了上述的 ref
-class Login extends React.component{
-  handleSubmit = (event) => {
-    event.preventDefault() // 阻止表单提交
-    const {username, password} = this.state
-    alert(`您输入的帐号是：${username}，请确认密码：${password}`)
-  }
-  state = { // 初始化状态
-    username: '', // 用户名
-    password: '' // 密码
-  }
-	saveUsername = (event) => { // 保存帐号到状态中
-    this.setState({username:event.target.value})
-  }
-  savePassword = (event) => { // 保存秘密到状态中
-    this.setState({password:event.target.value})
-  }
-  render() {
-    return (
-    	<form onSubmit={this.handleSubmit}>
-      	用户名：<input onChange={this.saveUsername} type="text" name="username"></input>
-        密码：<input onChange={this.savePassword} type="password" name="password"></input>
-        <button>登录</button>
-      </form>
-    )
-  }
-}
-ReactDOM.render(<Login />, document.getElementById('test'))
-```
-
-**表单处理**是受控组件的一个典型用例。HTML中的表单元素是可输入的，也就是有自己的可变状态（冲突）。而 React 中可变状态通常保存在 state 中，并且只能通过`setState()` 方法来修改（冲突）。React 将 `state` 与表单元素值 `value` 绑定在一起，**由 `state` 的值来控制表单元素的值**（本来各自管理，现在合二为一）。综上**受控组件就是其值受到 React 控制的表单元素**
-
-👍如果一个函数符合以下规范的任意一种，那么这个函数就是**高阶函数**：1. 若 A 函数接收的参数是一个函数，那么 A 就可以称为高阶函数；2. 若 A 函数调用的结果依然是一个函数，那么 A 就可以称为高阶函数。常见的高阶函数有 `Promise、setTimeout、arr.map()`。
-
-👍**函数的柯里化**：通过函数调用继续返回函数的方式，实现多次接收参数最后返回统一的处理方式。
-
-```js
-function sum(a) {return (b) => {return (c) => {return a+b+c}}}
-console.log(sum(1)(2)(3)); // 6
-```
-
-```jsx
-// 柯里化实现
-class Login extends React.component{
-  handleSubmit = (event) => {
-    event.preventDefault() // 阻止表单提交
-    const {username, password} = this.state
-    alert(`您输入的帐号是：${username}，请确认密码：${password}`)
-  }
-  state = { // 初始化状态
-    username: '', // 用户名
-    password: '' // 密码
-  }
-	saveFormData = (dataType) => { // 保存帐号到状态中
-    return (event) => { // event是react帮助生成的事件对象
-      this.setState({[dataType]: event.target.value})
-    }
-  }
-  render() {
-    return (
-    	<form onSubmit={this.handleSubmit}>
-      	用户名：<input onChange={this.saveFormData('username')} type="text" name="username"></input>
-        密码：<input onChange={this.saveFormData('password')} type="password" name="password"></input>
-        <button>登录</button>
-      </form>
-    )
-  }
-}
-ReactDOM.render(<Login />, document.getElementById('test'))
-```
-
-```jsx
-// 不使用柯里化
-class Login extends React.component{
-  handleSubmit = (event) => {
-    event.preventDefault() // 阻止表单提交
-    const {username, password} = this.state
-    alert(`您输入的帐号是：${username}，请确认密码：${password}`)
-  }
-  state = { // 初始化状态
-    username: '', // 用户名
-    password: '' // 密码
-  }
-	saveFormData = (dataType, value) => { // 保存帐号到状态中
-    this.setState({[dataType]: value})
-  }
-  render() {
-    return (
-    	<form onSubmit={this.handleSubmit}>
-        {/* 思路:必须把!! saveFormData 调用返回的函数 !!交给onChange作为回调才可 */}
-      	用户名：<input onChange={event=>this.saveFormData('username',event.target.value)} type="text" name="username"></input>
-        密码：<input onChange={event=>this.saveFormData('password',event.target.value)} type="password" name="password"></input>
-        <button>登录</button>
-      </form>
-    )
-  }
-}
-ReactDOM.render(<Login />, document.getElementById('test'))
-```
-
-#### 使用步骤
-
-- 在state中添加一个状态，作为表单元素的value值
-
-```jsx
-state = { txt: '' }
-```
-
-```jsx
-<input type="text" value={this.state.txt} onChange = {e => this.setState({txt: e.target.value})} />
-```
-
-- 给表单元素绑定change事件，将表单元素的值设置为state的值
-
-```jsx
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-
-class App extends React.Component {
-  state = {
-    txt: 'zsxzy',
-    content: 'zairesinatra',
-    city: 'sandiego',
-    isChecked: false
-  }
-  handleChange = (e) => {
-    this.setState({
-      txt: e.target.value
-    })
-  }
-  handleContent = (e) => {
-    this.setState({
-      content: e.target.value
-    })
-  }
-  handleselect = (e) => {
-    this.setState({
-      city: e.target.value
-    })
-  }
-  handleCheck = (e) => {
-    this.setState({
-      isChecked: e.target.checked
-    })
-  }
-  // select中的value表示自动选择同value属性的option
-  // checkbox须在input框中,checked进行属性绑定,handleChecked进行状态控制
-  render() {
-    return (
-      <div>
-        <input type="text" value = {this.state.txt} onChange={this.handleChange}></input>
-        <br></br>
-        <textarea value={this.state.content} onChange={this.handleContent}></textarea>
-        <br></br>
-        <select value={this.state.city} onChange={this.handleselect}>
-          <option value="changsha">1</option>
-          <option value="sandiego">2</option>
-          <option value="harbin">3</option>
-        </select>
-        <br></br>
-        <input type="checkbox" checked={this.state.isChecked} onChange={this.handleCheck}></input>
-      </div>
-    )
-  }
-}
-
-ReactDOM.render(<App />,document.getElementById('root'));
-```
-
-#### 多表单元素优化
-
-每个表单元素都有一个单独的事件处理函数较为繁琐，可以使用一个事件处理程序同时处理多个表单元素
-
-- 给表单元素添加 `name` 属性（用来区分是哪一个表单），名称与 `state` 相同（用来更新数据的）
-- 根据表单元素类型来获取对应值 `(e.target.type)`
-- 在触发事件处理程序中通过 `[name]` 来修改对应的 `state`
-
-```jsx
-inputChange = (e) => {
-   let value = e.target.type == 'checkbox' ? e.target.checked : e.target.value;
-   this.setState({
-       [e.target.name]: value
-   })
-}
-<input type="text" value={this.state.txt} name="txt" onChange={this.inputChange}/>
-<input type="checkbox" value={this.state.isChecked} name="isChecked" onChange={this.inputChange}/>
-```
-
-## 组件实例的 refs
-
-### 非受控组件
-
-- 说明：借助于 ref，使用元素 DOM 方式获取表单元素值
-- ref 的作用：获取 DOM 或者组件
-
-#### 使用步骤
-
-- 调用 `React.createRef()` 方法创建ref对象
-
-```jsx
-constructor() {
-  super();
-  this.自定义Ref = React.createRef()
-}
-```
-
-- 将创建好的 ref 对象添加到文本框中
-
-```jsx
-<input type="text" ref={this.自定义Ref}>
-```
-
-- 通过 ref 对象获取到文本框的值
-
-```jsx
-class App extends React.Component {
-    constructor(){
-        super()
-        // 创建 ref
-        // txtRef自定义
-        this.txtRef = React.createRef()
-    }
-    // 获取文本框的值
-    getTxt =() => {
-        console.log(this.txtRef.current.value)
-    }
-    render(){
-        return (
-          <div>
-            <input type ="text" ref={this.txtRef} />
-            <button onClick ={this.getTxt}>获取值</button>
-          </div>
-        )
-    }
-}
-```
-
-React组件基础
-
-- 两种创建方式：函数组件和类组件
-- 无状态函数组件，负责静态结构显示
-- 有状态类组件，负责更新页面
-- 绑定事件注意this指向
-- 推荐受控组件处理表单
-- 完全利用 JS 语言能力创建组件
-
 ## React 组件demo（★★★）
 
 ### 需求分析
@@ -1485,9 +1470,7 @@ ReactDOM.render(<Consprop name="zs" age={23} arr={['zsxzy']} jjsx={<p>这是p标
 
 ### 父组件传递数据给子组件
 
-- 父组件提供要传递的 state 数据
-- 给子组件标签添加属性，值为 state 中的数据
-- 子组件中通过 props 接收父组件中传递的数据
+父组件提供要传递的 state 数据。给子组件标签添加属性，值为 state 中的数据。子组件中通过 props 接收父组件中传递的数据。
 
 ```jsx
 // 组件传值-父子
@@ -1527,10 +1510,7 @@ ReactDOM.render(<Parent />,document.getElementById('parent'))
 
 ### 子组件传递数据给父组件
 
-- 利用回调函数，父组件提供回调，子组件调用，将要传递的数据作为回调函数的参数（谁接收，谁提供）
-- 父组件提供一个回调函数，用来接收数据
-- 将该函数作为属性的值，传递给子组件
-- 子组件通过props调用回调函数
+利用回调函数，父组件提供回调，子组件调用，将要传递的数据作为回调函数的参数（谁接收，谁提供）。父组件提供一个回调函数，用来接收数据，将该函数作为属性的值，传递给子组件。子组件通过 props 调用回调函数。
 
 ```jsx
 // 子组件向父组件传值
@@ -1565,12 +1545,7 @@ ReactDOM.render(<SonToParent />,document.getElementById('pparent'))
 
 ### 兄弟组件传递
 
-- 将共享状态（数据）提升到最近的公共父组件中，由公共父组件管理这个状态
-- 这个称为状态提升
-- 公共父组件职责：1. 提供共享状态 2.提供操作共享状态的方法
-- 要通讯的子组件只需要通过props接收状态或操作状态的方法
-
-#### 示例demo
+将共享状态（数据）提升到最近的公共父组件中，由公共父组件管理这个状态，这个称为状态提升。公共父组件职责：1. 提供共享状态 2.提供操作共享状态的方法。要通讯的子组件只需要通过props接收状态或操作状态的方法
 
 ```jsx
 // 组件之间传值
@@ -1605,18 +1580,16 @@ ReactDOM.render(<Exchangeofcomp/>,document.getElementById('exchangeofcomp'))
 
 ## Context
 
-如果出现组件层级比较多的情况（例如：`<App>=><Node>=><subNode>=><child>`），使用 Context 进行**跨组件传递数据**
+如果出现组件层级比较多的情况（例如：`<App>=><Node>=><subNode>=><child>`），使用 Context 进行**跨组件传递数据**。
 
-### 使用步骤
-
-- 调用 `React.createContext()` 创建 Provider(提供数据) 和 Consumer(消费数据) 两个组件
+- 调用 `React.createContext()` 创建 Provider（提供数据)）和 Consumer（消费数据）两个组件
 
 ```jsx
 const { Provider, Consumer } = React.createContext()
 ```
 
-- 使用Provider 组件作为父节点
-- 设置value属性，表示要传递的数据
+- 使用 Provider 组件作为父节点
+- 设置 value 属性，表示要传递的数据
 
 ```jsx
 <Provider value="pink">
@@ -1626,9 +1599,9 @@ const { Provider, Consumer } = React.createContext()
 </Provider>
 ```
 
-- 哪一层想要接收数据，就用 Consumer 进行包裹，在里面回调函数中的参数就是传递过来的值
+- 哪一层想要接收数据，就用 Consumer 进行包裹，在里面回调函数中的参数就是传递过来的值。
 
-```
+```jsx
 <Consumer>
   {
     data => <span>data参数表示接收到的数据 -- {data}</span>
@@ -1636,12 +1609,7 @@ const { Provider, Consumer } = React.createContext()
 </Consumer>
 ```
 
-### 小结
-
-- 如果两个组件相隔层级比较多，可以使用 Context 实现组件通讯
-- Context提供了两个组件：Provider 和 Consumer
-- Provider组件： 用来提供数据
-- Consumer组件： 用来消费数据
+如果两个组件相隔层级比较多，可以使用 Context 实现组件通讯。Context 提供了两个组件：Provider 和 Consumer。Provider 组件用来提供数据，Consumer 组件用来消费数据。
 
 ## props 进阶
 
@@ -1893,6 +1861,14 @@ render 和 shouldComponentUpdate 函数，也是 React 生命周期函数中唯�
 
 和装载过程不同的是，当在服务器端使用 React 渲染时，这一对函数中的 Did 函数，也就是 componentDidUpdate 函数，并不是只在浏览器端才执行的，无论更新过程发生在服务器端还是浏览器端，该函数都会被调用。
 
+`getSnapshotBeforeUpdate()` 在最近一次渲染输出（提交到 DOM 节点）之前调用。它使得组件能在发生更改之前从 DOM 中捕获一些信息（例如，滚动位置）。此生命周期方法的任何**返回值**将作为参数传递给 `componentDidUpdate()`。此用法并不常见，但它可能出现在 UI 处理中，如需要以特殊方式处理滚动位置的聊天线程等。
+
+componentDidUpdate 生命周期接收两个参数，第一项为 preProps，第二项为 preState，第三项为从 getSnapshotBeforeUpdate 传递过来的 snapshot 值 snapshotValue。页面完成更新则之前的数据可能获取不到，需要从前一个生命周期钩子 getSnapshotBeforeUpdate 获取。过年亲戚一起拍个找，年后亲戚都回家了就很难见到了。
+
+```jsx
+componentDidUpdate(preProps,preState,snapshotValue){console.log(preProps,preState,snapshotValue)}
+```
+
 #### 卸载时
 
 React 组件的卸载过程只涉及一个函数 componentWillUnmount，当组件要从 DOM 树上删除掉之前，对应的 componentWillUnmount 函数会被调用，所以这个函数适合做一些清理性的操作。和装载过程与更新过程不一样，这个函数没有配对的 Did 函数，就一个函数，因为卸载完就完了，没有"卸载完再做的事情"。卸载中的工作往往和 componentDidMount 有关，componentDidMount 中用非 React 的方法创造了一些 DOM 元素，如果撒手不管可能会造成内存泄露，那就需要在 componentWillUnmount 中把这些创造的 DOM 元素清理掉。
@@ -1925,7 +1901,7 @@ class Counter extends React.Component {
 | React 16.3 之前 | constructor **componentWillMount** render componentDidMount  | **componentWillReceiveProps** shouldComponentUpdate **componentWillUpdate** render componentDidUpdate | componentWillUnmount |
 |      现在       | constructor **getDerivedStateFromProps** render componentDidMount | **getDerivedStateFromProps** shouldComponentUpdate render **getSnapshotBeforeUpdate** componentDidUpdate | componentWillUnmount |
 
-以下生命周期钩子被废弃，特点都是带有will的钩子：
+以下生命周期钩子被废弃，特点都是带有 will 的钩子：
 
 - componentWillMount
 - componentWillReceiveProps
@@ -1957,8 +1933,9 @@ componentDidMount	componentDidUpdate	componentWillUnmount
 
 ##### `getDerivedStateFromProps()`
 
-- **`getDerivedStateFromProps`** 会在调用 render 方法之前调用，并且在初始挂载及后续更新时都会被调用。它应返回一个对象来更新 state，如果返回 null 则不更新任何内容
-- 不管原因是什么，都会在*每次*渲染前触发此方法
+- **`getDerivedStateFromProps`** 会在调用 render 方法之前调用，并且在初始挂载及后续更新时都会被调用。它应返回一个对象来更新 state，如果返回 null 则不更新任何内容。
+- 不管原因是什么，都会在每次渲染前触发此方法
+- 在项目中若 state 的值任何时候都取决于 props ，可以使用 [getDerivedStateFromProps](https://www.bilibili.com/video/BV1wy4y1D7JT?p=44)。
 
 ##### `shouldComponentUpdate()`
 
@@ -2726,12 +2703,28 @@ ReactDOM.render(<App />,document.getElementById('root'))
   - 两种常用的Router： HashRouter 和 BrowserRouter（若需要则只需将 BrowserRouter 改成 HashRouter）
   - HashRouter： 使用URL的哈希值实现 （localhost:3000/#/first）
   - 推荐 BrowserRouter：使用H5的history API实现（localhost3000/first）
+  
 - **Link 组件：**用于指定导航链接（a标签）
   - 最终Link会编译成a标签，而to属性会被编译成 a标签的href属性
+  
 - **Route 组件：**指定路由展示组件相关信息
+  
   - path属性：路由规则，这里需要跟Link组件里面to属性的值一致
   - component属性：展示的组件
   - Route写在哪，渲染出来的组件就在哪
+  
+- **NavLink：**就是一个Link，一个会有 style 的 Link
+  activeClassName：string，就是被匹配到的时候，对他增加class name
+  activeStyle：object，就是被匹配到的时候，对他增加css inline-style样式
+  isActive：boolean，利用function来判断该NavLink是否被匹配到
+  exact：是否路径要与网址一模一样
+  strict：是否要严格判断结尾斜线
+
+  ```html
+  import { NavLink } from 'react-router-dom'
+  <NavLink to="/faq" activeClassName="selected">FAQs</NavLink>
+  <NavLink to="/faq" activeStyle={{ fontWeight: "bold", color: "red" }}>FAQs</NavLink>
+  ```
 
 ### 路由的执行过程
 
@@ -2830,9 +2823,34 @@ A、`<routeLink to="/index.html">走你</routeLink>`	B、`<link href="/index.htm
 - 高内聚指的是把**逻辑紧密相关的内容放在一个组件中**。用户界面无外乎内容、交互行为和样式。传统上，内容由 HTML 表示，交互行放在 JavaScript 代码文件中，样式放在 CSS 文件中定义。这虽然满足一个功能模块的需要，却要放在三个不同的文件中，这其实不满足高内聚的原则。React却不是这样，展示内容的 JSX、定义行为的 JavaScript 代码，甚至定义样式的 CSS，都可以放在一个 JavaScript 文件中，因为它们本来就是为了实现一个目的而存在的，所以说 React 天生具有高内聚的特点。
 - 低耦合指的是**不同组件之间的依赖关系要尽量弱化**，也就是**每个组件要尽量独立**。保持整个系统的低耦合度，需要对系统中的功能有充分的认识，然后根据功能点划分模块，让不同的组件去实现不同的功能，这个功夫还在开发者身上，不过，React 组件的对外接口非常规范，方便开发者设计低耦合的系统。
 
-## ReactHooks
+## 代理设置
 
-React 16.8 新特性，可以在不写 class 的情况下使用 state 等 react 特性。hooks 是对函数式组件的极大增强。
+在 package.json 文件中补加 "proxy" 配置。这注意是 localhost 3000 没有的才会转发给 5000。若在 public 目录下存在同名文件则不会转发，直接读取同名文件。
+
+```json
+"proxy": "http://localhost:5000"
+// http 请求所有发送给3000请求都会转发给5000
+```
+
+上述方式存在不能配置多个代理的局限。可以在 src 文件夹建立 setupProxy.js 文件（因通过脚手架交给 webpack 故需使用 CJS 语法）设置。
+
+```js
+const proxy = require('http-proxy-middleware') // react 下载好了
+module.exports = function(app) {
+  app.use(
+  	proxy('/api1',{ // api1的数据转发给5000 —— 预检请求前缀,是否触发代理
+      target: 'http://localhost:5000', // 请求转发
+      changeOrigin: true, // 控制服务器收到的请求头中 host 字段的值——host表示本次请求从哪里发出
+      pathRewrite: {'^/api1':''} // 改回路径——api1只是指明转发给的服务器,实际没有
+    }),
+    proxy('/api2',{ // api2的数据转发给5001
+      target: 'http://localhost:5001',
+      changeOrigin: true,
+      pathRewrite: {'^/api2':''}
+    })
+  )
+}
+```
 
 ## 全文小结
 
@@ -2849,3 +2867,10 @@ React 16.8 新特性，可以在不写 class 的情况下使用 state 等 react 
 - **类中构造器接收与传入 props 与否就是取决于是否希望在构造器中通过实例去访问 props。**
 - 函数组件能接收参数（props对象）所以可以使用 props ，但是与 state 以及 refs 无缘。
 - 由于复用、独立、可组合，所以组件是 React 中的 一等公民
+- React 组件两种创建方式：函数组件和类组件
+- React 组件无状态函数组件，负责静态结构显示
+- React 组件有状态类组件，负责更新页面
+- 绑定事件注意 this 指向
+- 推荐受控组件处理表单
+- 标签体也是特殊的标签属性——children
+- 通过引入的 switch 标签包裹注册路由后，匹配一个路由就不会接着往下匹配了，避免匹配过多路由的资源消耗。因为通常情况下 path 与路径是一一对应关系。应该使用 switch 包裹提高效率进行单一匹配。
