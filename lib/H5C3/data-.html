@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自定义属性</title>
+</head>
+<body>
+    <div getTime = "2019", data-index="0" data-list-name="zszs"></div>
+    <script>
+        var divEle = document.querySelector('div');
+        console.log(divEle.getTime); // undefined
+        console.log(divEle.getAttribute('getTime')); // 2019
+        divEle.setAttribute('data-time',2020);
+        console.log(divEle.getAttribute('data-time')); // 2020
+        console.log(divEle.getAttribute('data-list-name')); // zszs
+        // h5新增获取自定义属性的方法只能拿 data- 开头的
+        // dataset 是一个集合存放所有以data开头的自定义属性
+        console.log(divEle.dataset); // DOMStringMap {index: '0', listName: 'zszs', time: '2020'}
+        console.log(divEle.dataset.index); // 0
+        console.log(divEle.dataset['index']); // 0
+        // 若自定义属性有多个 - 链接的单词,获取时可以使用驼峰命名法
+        console.log(divEle.dataset.listName); // zszs
+        console.log(divEle.dataset['listName']); // zszs
+    </script>
+</body>
+</html>

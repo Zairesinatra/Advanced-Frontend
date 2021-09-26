@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tab栏切换</title>
+    <style>
+    *{
+        margin:0;
+        padding:0;
+    }
+    .tab{
+        width:800px;
+        height:45px;
+        border:1px solid #ccc;
+        border-bottom:1px solid #c81623;
+        background: #fafafa;
+        position:relative;
+        margin:100px auto;
+    }
+    .tab_list li{
+        width:160px;
+        height:45px;
+        list-style:none;
+        line-height:45px;
+        text-align: center;
+        float:left;
+    }
+    .tab_list .current{
+        background-color:#c81623;
+        color:#fff;
+    }
+    .item{
+        width:800px;
+        height: 200px;
+        padding-top:40px; 
+        /*line-height:200px;*/
+        font-size: 30px;
+        color:#fff;
+        text-align: center;
+        text-shadow:2px 2px 4px #000000;
+        background: #efefef;
+        /*opacity: 0.8;*/
+        top:47px;
+        position:absolute;
+    }
+    </style>
+</head>
+<body>
+<div class='tab'>
+        <div class='tab_list'>
+            <ul>
+                <li class='current'>个性推荐</li>
+                <li>歌单</li>
+                <li>主播电台</li>
+                <li>排行榜</li>
+                <li>歌手</li>
+            </ul>
+        </div>
+    <div class='tab_con'>
+        <div class="item one" style='display:block'>每日歌曲推荐</div>
+        <div class="item two">精品歌单倾心推荐，给最懂音乐的你</div>
+        <div class="item thr">上瘾烟嗓情感之声</div>
+        <div class="item fou">新歌飙升榜</div>
+        <div class="item fiv">歌手排行榜</div>
+    </div>
+</div>
+<!-- tab 栏切换有2个模块,模块的选项卡点击其中的某一个,被点击的这一个底色将变成红色的,其余的不变(排他思想)使用修改类的名称的方式 -->
+<!-- 下面显示模块内容会随着上面的选项卡变化,所以下面模块变化写到点击事件里面.规律:下面模块显示内容和上面的选项卡一一对应匹配 -->
+ <script>
+    var tab_list = document.querySelector('.tab_list');
+    var lis = tab_list.querySelectorAll('li');
+    var items = document.querySelectorAll('.item');
+    //for 循环绑定点击事件
+    for(var i=0;i < lis.length;i++){
+        lis[i].setAttribute('index',i); // 增加自定义属性index
+        lis[i].onclick = function() {
+            for(var i=0;i < lis.length;i++){
+                lis[i].className = '';
+            }
+            //留下现在需要用的
+            this.className = 'current';
+            //下面显示内容模块
+            var index = this.getAttribute('index');
+            console.log(index);
+            //去掉其他的 item，让这些隐藏起来
+            //只留下当前的 item，让它显示出来
+            for(var i=0;i<items.length;i++){
+                items[i].style.display='none';
+            }
+            items[index].style.display = 'block';
+        }
+    }
+ </script>
+</body>
+</html>

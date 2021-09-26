@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>循环精灵图</title>
+    <style>
+        div {
+            width: 160px;
+            height: 155px;
+            margin: 100px auto; /* 居中 */
+        }
+        ul {
+            width: 100%;
+        }
+        li {
+            float: left;
+            width: 30px;
+            height: 30px;
+            box-sizing: border-box;
+            margin: 5px;
+            list-style: none;
+            background-color: pink;
+            background: url('images/jlt.png') 0 0 no-repeat;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <ul>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+    <script>
+        var list = document.querySelectorAll('li');
+        for (var i = 0; i < list.length; i++) {
+            var index = i * 44;
+            // background-position 为每一个背景图片设置初始位置常与 background、background-image、background-repeat 搭配
+            list[i].style.backgroundPosition = '0 -' + index + 'px';
+        }
+    </script>
+</body>
+</html>

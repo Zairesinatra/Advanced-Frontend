@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="content" style="height:150px;line-height:150px;text-align:center; color: #fff;background-color:#ccc;font-size:80px;"></div>
+    <script>
+        let num = 1;
+        let content = document.getElementById('content');
+        function count(e) {
+            console.log(this); // <div id="content" style="height:150px;line-height:150px;text-align:center; color: #fff;background-color:#ccc;font-size:80px;">2</div>
+            console.log(e); // MouseEvent {isTrusted: true, screenX: 691, screenY: 217, clientX: 691, clientY: 81, …}
+            content.innerHTML = num++;
+        };
+        function throttle (func, delay) {
+            let timer;
+            return function() {
+                // this也是指向的DOM元素,事件参数也是绑定的onmousemove
+                if(timer) {
+                    return
+                }
+                timer = setTimeout(() => {
+                    func.apply(this, arguments)
+                    // func() // Window {window: Window, self: Window, document: document, name: '', location: Location, …} undefined
+                    timer = null
+                }, delay)
+            }
+        }
+        // content.onmousemove = count;
+        content.onmousemove = throttle(count, 1500);
+    </script>
+</body>
+</html>
