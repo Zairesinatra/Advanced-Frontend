@@ -1,4 +1,4 @@
-# **Vue.js**
+# Vue
 
 ------
 
@@ -82,7 +82,7 @@ Vue--编译-->原生 JavaScript；在 VSCode 的 live server 下，会在 5500 �
 
 ![helloworld](./assets/helloworld.png)
 
-### Object.defineProperty(obj,'attr',{config})
+### Object.defineProperty
 
 使用 `Object.defineProperty(obj,'attr',{config})` 追加的属性不可以被枚举（遍历），可以通过配置项进行高级的限制。
 
@@ -115,15 +115,11 @@ Object.defineProperty(person,'age',{
 })
 ```
 
-## 模板语法：
+### 模板语法
 
-这里理解类比 art-template 实现渲染功能——数据填充HTML标签：通过 Ajax 获取后端数据，渲染模板
+这里理解类比 art-template 实现渲染功能——数据填充HTML标签：通过 Ajax 获取后端数据，渲染模板。前端渲染方式通常有原生JS拼接字符串、前端模板引擎（不提供事件机制）、Vue模板语法。
 
-前端渲染方式：原生JS拼接字符串、前端模板引擎（不提供事件机制）、Vue模板语法
-
-概览：插值表达式、指令、事件绑定、属性绑定、样式绑定、分支循环结构
-
-**指令：**
+## 指令
 
 - 本质就是<font color="red">自定义属性</font>
 - `Vue`中指定都是以 `v-` 开头 
@@ -194,35 +190,29 @@ Object.defineProperty(person,'age',{
 
 ###  v-html
 
-- 用法和`v-text` 相似  但是他可以<font color="red">将HTML片段填充到标签中</font>
+与 v-text 相似，但可以将 HTML 片段填充到标签中，即浏览器支持对其结构解析（v-text 输出的是纯文本）。但是存在安全问题（XSS攻击）, 一般只在可信任内容上使用 v-html，**永不**用在用户提交的内容上。
 
-- 可能<font color="red">有安全问题</font>（XSS攻击）, 一般只在可信任内容上使用 `v-html`，**永不**用在用户提交的内容上
-
-- 它与`v-text`区别在于`v-text`输出的是纯文本，浏览器不会对其再进行`html`解析，但`v-html`会将其当`html`标签解析后输出。
-
-  ```html
-  <div id="app">
-    <p v-html="html"></p> <!-- 输出：html标签在渲染的时候被解析 -->
-    <p>{{message}}</p> <!-- 输出：<span>通过双括号绑定</span> -->
-    <p v-text="text"></p> <!-- 输出：<span>html标签在渲染的时候被源码输出</span> -->
-  </div>
-  <script>
-  　　let app = new Vue({
-  　　el: "#app",
-  　　data: {
-  　　　　message: "<span>通过双括号绑定</span>",
-  　　　　html: "<span>html标签在渲染的时候被解析</span>",
-  　　　　text: "<span>html标签在渲染的时候被源码输出</span>",
-  　　}
-   });
-  </script>
-  ```
+```html
+<div id="app">
+  <p v-html="html"></p> <!-- 输出：html标签在渲染的时候被解析 -->
+  <p>{{message}}</p> <!-- 输出：<span>通过双括号绑定</span> -->
+  <p v-text="text"></p> <!-- 输出：<span>html标签在渲染的时候被源码输出</span> -->
+</div>
+<script>
+　　let app = new Vue({
+　　el: "#app",
+　　data: {
+　　　　message: "<span>通过双括号绑定</span>",
+　　　　html: "<span>html标签在渲染的时候被解析</span>",
+　　　　text: "<span>html标签在渲染的时候被源码输出</span>",
+　　}
+ });
+</script>
+```
 
 ###  v-pre
 
-- 显示<font color="red">原始信息跳过编译过程</font>
-- <font color="red">跳过这个元素和它的子元素的编译过程</font>
-- **一些静态的内容不需要编译加这个指令可以<font color="red">加快渲染</font>**
+显示原始信息，跳过 vue 编译过程，即<font color="red">跳过这个元素和它的子元素的编译过程</font>。**一些静态的内容不需要编译加这个指令可以<font color="red">加快渲染</font>**。
 
 ```html
 <span v-pre>{{ this will not be compiled }}</span>    
@@ -265,6 +255,8 @@ Object.defineProperty(person,'age',{
 ### v-model
 
 **v-model**是一个指令，限制在 `<input>、<select>、<textarea>、components`中使用，即可以在表单中完成双向数据绑定，数据发生变化的时候，视图也就发生变化。视图发生变化的时候，数据也会跟着同步变化。
+
+若在 type 为 text 时，则 v-model 收集的是 value 值，用户输入的就是 value 值。若在 type 为 radio 时，则 v-model 收集的是 value 值，且要给标签配置 value 值。若 type 为 checkbox ，那么没有设置 input 的 value 属性，收集的就是 checked（是否勾选的布尔值）；若配置 input 的 value 为数组，那么收集的就是 value 组成的数组。此外注意 v-model 的三个修饰符：lazy 是去焦点再手机数据；number 使输入的字符串转为有效的数字，常配合 type 为 number 一起使用；trim 适合输入收尾空格的过滤。
 
 ```html
  <div id="app">
@@ -1161,9 +1153,7 @@ var vm= new Vue({
   <input v-model.lazy="msg" >
   ```
 
-###  自定义指令
-
-- 内置指令不能满足我们特殊的需求（13种内置指令满足不了全部来发流程），故 Vue 允许我们自定义指令
+###  [自定义指令](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=45&spm_id_from=pageDriver)
 
 #### Vue.directive  注册全局指令
 
@@ -1484,12 +1474,7 @@ var vm= new Vue({
 
 ###  过滤器
 
-- Vue.js允许自定义过滤器，可被用于一些常见的文本格式化。
-- 过滤器可以用在两个地方：双花括号插值和v-bind表达式。
-- 过滤器应该被添加在JavaScript表达式的尾部，由“管道”符号指示
-- 支持级联操作
-- 过滤器不改变真正的`data`，而只是改变渲染的结果，并返回过滤后的版本
-- 全局注册时是filter，没有s的。而局部过滤器是filters，是有s的
+Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本格式化。但不是必须要使用，也可以通过计算属性完成类似的操作。过滤器可以用在两个地方：双花括号插值和 v-bind 表达式。过滤器应该被添加在 JavaScript 表达式的尾部，由“管道”符号指示，支持级联操作。过滤器不改变真正的`data`，而只是改变渲染的结果，并返回过滤后的版本。全局注册时是 filter，没有 s 的。而局部过滤器是 filters，是有 s 的。使用时将管道符前的作为参数参数传给管道符后的过滤器（过滤器函数不写小括号也行）。过滤器只能使用在插值语法和 v-bind，不能在 v-model 上使用。
 
 ```html
 <!DOCTYPE html>
@@ -2124,9 +2109,53 @@ var vm= new Vue({
 </html>
 ```
 
-### Vue 调试工具
+### ref 属性
 
-### Vue组件之间传值（父子关系、兄弟关系）
+用来给元素或子组件注册引用信息（id 的替代者）、应用在 html 标签获取的是真实 DOM 元素，应用在组件标签是组件实例对象（vc）
+
+```js
+// 标识 => <h1 ref="xxx">...</h1> or <Zujian ref="xxx"></Zujian>
+// 获取 => this.$refs.xxx
+```
+
+### Vue组件之间传值
+
+#### Props（只读属性）
+
+从父组件传递过来的每一个属性都是 props，默认字符串，但如果需要数字可以使用两种方式：1. 乘以1进行强制类型转换、2. 使用动态绑定得到双引号中的 js 表达式的计算值（数字）。props 有三种形式，第一种是数组，即简单地接收传递的属性；第二种是 props 对象，每一对 key 与 value 值都是传递的属性名与类型；第三种是 props 对象中包含每一项传递过来的属性对象，属性对象包含三种键，分别为：1. type、2. required、3. default（类型限制、默认值指定、必要性限定）。通常 2、3 属性并非同时存在，有画蛇添足的嫌疑。
+
+#### mixin混入
+
+组件之间共享配置，在 mixin.js 文件中分别暴露后，在需要的组件中接收，并在 VueComponent 实例里与 data 平级的位置加上 mixins 数组（数组中包含接收的 mixin 配置）。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=67)。值得注意的是，在组件中存在的配置项，以组件为主，组件中没有的配置项，以 mixin 中的配置为主。生命周期则不以任何为主，都要。
+
+```js
+// main.js
+import {xxx, yyy} from './mixin'
+Vue.mixin(xxx)
+Vue.mixin(yyy)
+// 全局混和后包括 root 以及 App 都会收到混和的影响
+```
+
+#### 插件
+
+插件的本质是对象，但是要求必须包含 install 方法。在 src 目录中定义 plugins.js 文件。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=68&spm_id_from=pageDriver)。
+
+```js
+// plugins.js
+export default {
+  install(Vue){ // Vue是 vue 构造函数
+    console.log(Vue)
+  }
+}
+```
+
+```js
+// main.js
+...
+import plugins from './plugins'
+Vue.use(plugins)
+...
+```
 
 #### 父组件向子组件传值
 
@@ -2238,10 +2267,7 @@ var vm= new Vue({
 
 #### 子组件向父组件传值
 
-- 引入=>子组件能不能操作上述代码中父组件传递过来的数组？
-- 子组件用`$emit()`触发事件
-- `$emit()`  第一个参数为 自定义的事件名称     第二个参数为需要传递的数据
-- 父组件用v-on 监听子组件的事件
+父组件用 v-on、v-once 监听子组件的事件，子组件用`$emit()`触发事件。 `$emit()` 第一个参数为自定义的事件名称，第二个参数为需要传递的数据。子组件解除绑定可以使用 `$off('事件名')、$off(['a','b'])、$off()`。通过 `this.$destroy` 后所有组件实例上的自定义事件全部不奏效。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=81)。给子组件绑定原生 DOM 事件时，发现被子组件视作自定义事件可以使用 .native 修饰符进行确认。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=82&spm_id_from=pageDriver)。
 
 ```html
 <!DOCTYPE html>
@@ -3687,3 +3713,44 @@ Vue.set(vm.\_data.attr, 'addAttr', 'value') => vm.$set(vm._data.attr, 'addAttr',
 
 在 vue 数组中修改某个元素一定使用如下方法：Vue 提供修改数组七个 API、`Vue.set()` 或 `vm.$set()`。特别注意`Vue.set()` 或 `vm.$set()` 不可以给 vm 或者 vm 根数据对象添加属性！[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=37&spm_id_from=pageDriver)。
 
+格式化日期常用库：[moment](https://www.bootcdn.cn/moment.js/)、[dayjs](https://www.bootcdn.cn/dayjs/)
+
+注意模板语法与 v-html 以及 v-text 区别在于，使用了后者进行数据绑定，会将标签内容完全替代。
+
+自定义指令在与元素成功绑定时调用；自定义指令所在模板被重新解析时也会被调用，即绑定是是 data 中的某个值，当其他值变化也会调用。自定义形式存在两种形式，一种为对象形式（细节配置），一种为函数形式。接受的两个参数分别是真实 DOM 元素与绑定对象（最重要的是绑定对象 binding 中的 value 值）。自定义指令写成对象形式可以配置三个阶段的函数，即 bind 元素与指令绑定的时刻、inserted 指令所在元素插入页面时、update 指令所在模板更新时刻。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=46&spm_id_from=pageDriver)。自定义指令中的 this 都是指向 window。指令名在 HTML 中最好使用 kebab-case 命名，不要使用 camelCase 命名。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=47&spm_id_from=pageDriver)。
+
+回调函数：定义了没执行，最终执行了。
+
+上文中的组件全部为 vue.extend 的简写，[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=55&spm_id_from=pageDriver)。
+
+关于 this 指向，在组件配置中，data 函数、methods 函数、watch 中函数、computed 中函数，其值都是 VueComponent 实例对象；new Vue(options) 配置中，data 函数、methods 函数、watch 中函数、computed 中函数，其值都是 Vue 实例对象。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=57)。在写组件的时候，vue 会帮助创建组件的实例对象，即 vue 帮助执行 new VueComponent(options)。
+
+```js
+Vue.extend = function(extendOptions){
+  ...
+  var Sub = function VueComponent(options){
+    this._init(options);
+  }
+  ...
+  return Sub
+}
+```
+
+VueComponent 的原型对象的 \__proto\__ 的原型对象不是指向 Object.prototype，而是指向了 Vue 的原型对象。点此。由于 VueComponent.prototype.\__proto\__ === Vue.prototype，所以组件实力对象（vc）可以访问 Vue 原型对象上的属性和方法。
+
+```js
+// render h => h(App) // 非h('App') -> 创建一个 html 的 App 元素是不对的;正解是变量——外壳组件
+render(createElement){
+  return createElement('h1', 'hellozs') // 内置元素与具体内容
+}
+```
+
+所有 vue 的 js 文件带有 runtime 运行时名称的都是把模板解析器去除的。由于模板解析器太大，将模板解析后就无用了，项目经过 webpack 打包后，仍然存留占据 1/3 大小 vue 的模板解析器是不合理的。esm 版本即 ES6 module 版本。
+
+自定义时间往往给组件使用。子组件传值给父组件的三种方式：父组件提供函数以动态绑定传递给子组件，子组件通过 props 接收后调用；父组件定义事件，并通过 v-on 绑定给子组件，子组件使用 $emit 触发传递的函数；父组件使用 $on 监听组件的 VC 实例（通过 ref 为子组件指定 DOM 名），即具体为 this.$refs.student.$on('zizujian', this.fangfa)。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=80&spm_id_from=pageDriver)。
+
+（globalEventBus）全局事件总线 $bus 相当于傀儡，通过在 main.js 中 new Vue 过程的 beforeCreate 钩子绑定在 Vue 的实例对象上。在兄弟组件之间，接收事件的使用 this.$bus.$on 监听事件，而发出事件的组件使用 this.$bus.$emit 触发事件。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=85&spm_id_from=pageDriver)。
+
+[pubsub-js](https://github.com/mroderick/PubSubJS) 完成消息与订阅。注意使用 PubSub 对象的 subscribe 方法时，回调函数接收的参数有**两个**，一个是 PubSub 对象 publish 的方法名，一个是传递过来的参数。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=87&spm_id_from=pageDriver)。
+
+this.$nextTick 指定的回调会在 DOM 节点更新后再执行。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=90&spm_id_from=pageDriver)。
