@@ -40,22 +40,22 @@ npm install react react-dom
 
 ### React 脚手架
 
-- 初始化：
+- 初始化
+
+npx 是 npm@5.2.0 引入的一条命令，提供包内提供的命令行工具的使用体验。此前没有 npx 是需要全局安装脚手架再去使用包中提供的命令。而使用 npx 无需安装脚手架就可以直接使用这个包提供的命令。
 
 ```zsh
 $ npx create-react-app my-app
 ```
 
-- 启动项目：
+- 启动项目
+
+yarn 是 facebook 发布的包管理器，看作与 npm 替代品。初始化新项目：`yarn init`、安装包：`yarn add 包名`
 
 ```zsh
 # 在项目根目录执行(上一步创建的my-app)
 $ npm start
 ```
-
-npx 是 npm@5.2.0 引入的一条命令，提供包内提供的命令行工具的使用体验。此前没有 npx 是需要全局安装脚手架再去使用包中提供的命令。而使用 npx 无需安装脚手架就可以直接使用这个包提供的命令。
-
-yarn 是 facebook 发布的包管理器，看作与 npm 替代品。初始化新项目：`yarn init`、安装包：`yarn add 包名`
 
 package.json 文件中和 start 并列还有其他几个命令，其中 build 可以创建生产环境优化代码，test 用于单元测试，还有一个 eject 命令
 把潜藏在 react-scripts 中的一系列技术栈配置都“弹射”到应用的顶层，然后就可以研究配置细节，进行更灵活地定制应用的配置。值得一提的是 eject 命令是不可逆的，就好像战斗机飞行员选择“弹射”出驾驶舱，等于是放弃了这架战斗机，是不可能再飞回驾驶舱的。所以，当执行 eject 之前，最好做一下备份。完成 eject 后当前目录下会增加两个目录，一个是 scripts，另一个是 config，同时，package.json文件中的 scripts 部分也发生了变化。

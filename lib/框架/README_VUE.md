@@ -2453,8 +2453,7 @@ Vue.use(plugins)
 
 ### 组件插槽
 
-- 组件的最大特性就是复用性，而用好插槽能大大提高组件的可复用能力
-- 用途=>父组件向子组件传递内容（这里的内容是**模板内容**）
+父组件向子组件传递模板内容时使用插槽能提高组件的可复用能力（在 App 根组件中配置子组件里的 slot 标签内容，slot 内容可以占据子组件（模板组件）的相应插槽位置）。最新的具名插槽（v2.6），在与 template 标签一起使用时，可以写成 v-slot:xxx 的形式。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=103&spm_id_from=pageDriver)。
 
 #### 匿名插槽
 
@@ -2547,8 +2546,7 @@ Vue.use(plugins)
 
 ####  作用域插槽
 
-- 父组件对子组件内容加工处理
-- 既可以复用子组件的`slot`，又可以使`slot`内容不一致
+在组件标签中使用 template 包裹需要子组件数据的内容结构，需要注意的是需要加上 scope。数据不在根组件，而需要按需渲染子组件时，常用作用域插槽。通过 scope 接收以及子组件的 slot 标签中的绑定数据名可以不同，只是说谁使用此插槽，谁接收数据。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=104&spm_id_from=pageDriver)。
 
 ```html
 <!DOCTYPE html>
@@ -2558,6 +2556,9 @@ Vue.use(plugins)
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>作用域插槽</title>
+  	<!-- 使用者决定渲染的结构,子组件提供插槽的数据 -->
+  	<!-- ES6 学的好可在 scope 中直接解构赋值 => scope="{otherdata}" -->
+  	<!-- scope 和 slot-scope 其实是一样的-->
     <style>
         .current{
             color:red
@@ -2566,9 +2567,10 @@ Vue.use(plugins)
 </head>
 <body>
     <div id="app">
+      	<!-- 子组件 -->
         <fruit-list :list="arr">
             <!-- template关键性属性slot-scope得到子组件传递的数据 -->
-            <template slot-scope="diyname">
+            <template slot-scope="diyname"> <!-- scope -->
                 <!-- 这一行决定子组件的某一行显示成什么样子 -->
                 <strong v-if="diyname.zidingyishuxing.id == 2" class='current'>
                     {{diyname.zidingyishuxing.scientificname}}
@@ -2607,6 +2609,13 @@ Vue.use(plugins)
 ```
 
 <u>组件的data必是函数，否则报错 => 而vm实例中data是对象 => 使用函数会形成闭包环境，每一份组件都会有独立的数据</u>
+
+#### 总结
+
+- 默认插槽：父组件挖坑（写 html 结构），子组件填土（提供 slot）。
+- 具名插槽：父组件指定挖坑（写 html 结构），子组件指明填土（提供 slot）。
+- 作用域插槽：数据在组件自身，但是根据数据所生成的结构需要使用者决定。
+- 作用域插槽也可以有名字。
 
 ------
 
@@ -3691,6 +3700,178 @@ const componentt = {
 }
 ```
 
+## VUEX
+
+组件之间共享数据的方式（小范围）常有父向子组件传递数据：`v-bind` 属性绑定；子组件向父组件传值： `v-on` 事件绑定；兄弟组件之间数据共享： `EventBus` => `$on` 注册事件-接受数据的组件、`$emit` 发送数据的组件。
+
+Vuex 是实现组件全局状态（数据）管理的一种机制，共享组件之间的数据。Vuex 中的数据也称为状态、全局数组。Vuex 本质是插件。<u>常在多个组件依赖于同一个状态时、或不同组件行为变更同一状态时使用</u>。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=108&spm_id_from=pageDriver)。
+
+### 快速上手
+
+安装 Vuex
+
+```shell
+npm i vuex
+```
+
+在 main.js 中引入 vuex（和 vue-resource 使用类似，引入后所有 vc 上都存在了一个 $http）后可以在 vue实例上设置 store 属性。
+
+```js
+import Vuex from 'vuex'
+...
+Vue.use(Vuex)
+...
+```
+
+在 src 文件夹下新建文件夹 store 的 index.js 文件用于创建管理 store。（有开发经验一眼看出）
+
+- State 提供唯一公共数据源，所有共享数据同一放在 Store 的 State 中储存
+
+```js
+const store = new Vuex.Store({
+	state: { count:0 } // 对象中的数据就是全局共享的数据
+})
+```
+
+组件中访问 `State` 中数据的<u>第一种方式</u>：
+
+```js
+this.$store.state.全局数据名称
+```
+
+组件中访问 `State` 中数据的<u>第二种方式</u>：
+
+```js
+// 从 vuex 中按需导入 mapState 函数
+import { mapState } from 'vuex'
+```
+
+```js
+// 将全局数据映射为当前组件的计算属性
+computed: {
+  ...mapState(['count']); // 需要哪些全局属性就在这里声明
+}
+```
+
+- `mutation`：用于变更 `Store` 中的数据（不推荐`this.$store.state.count`修改全局数据-项目大找不到谁修改的数据）
+
+操作 `mutation` 变更数据虽较为繁琐却可以集中监控所有的数据变化
+
+方式一
+
+```js
+const store = new Vuex.Store({
+	state: {
+		count: 0
+	},
+	mutations: {
+		add(state, strp) {
+			// 变更状态
+			state.count += step
+		}
+	}
+})
+```
+
+```js
+// 触发 mutation
+methods: {
+  handle1() {
+    // 触发 mutations 的第一种方式
+    this.$store.commit('add')
+  }
+}
+```
+
+方式二
+
+```js
+// 从 vuex 中按需导入 mapMutations 函数
+import { mapMutations } from 'vuex'
+```
+
+```js
+// 在组件中通过导入的 mutations 函数映射为当前组件的 methods 函数
+methods: {
+  ...mapMutations(['add','addN'])
+}
+```
+
+`Action`：`Mutation` 中不能写异步的代码，而 `Action` 专门处理异步任务。在 `Action` 中间接地触发 `Mutation` 方式间接变更数据。
+方式一
+
+```js
+const store = new Vuex Store({
+	mutations: {
+		add(state) {
+			state.count++
+		},
+    addN(state, step) {
+      state.count += step
+    }
+	},
+	actions: {
+		addAsync(context, step) {
+		setTimeout(() => {
+			context.commit('addN', step)
+		}, 1000)
+		}
+	}
+})
+```
+
+```js
+// 触发 Actions 
+methods: {
+	handle() {
+		this.$store.dispatch('addAsync', 5) // 一个是dispatch一个是commit
+	}
+}
+```
+
+**第二种方式**
+
+```js
+// 从 vuex 中按需导入 mapActions 函数
+import { mapActions } from 'vuex'
+```
+
+```js
+// 指定的 actions 函数映射为当前组件的 methods 函数
+methods: {
+	...mapActions(['addAsync', 'addNAsync'])
+}
+```
+
+<u>因为是映射，导入后可以直接绑定到事件</u>
+
+- `Getter` 用于对 `Store` 中数据进行加工处理形成新的数据，不会修改 `Store` 里的原数据，仅包装。类似于 `Vue` 中计算属性。 `Store` 中数据发生变化，`Getter` 数据也会发生变化。
+
+```
+const store = new Vuex.Store({
+	state: {
+		count: 0
+	},
+	getters: {
+		showNum: state => {
+			return '当前最新的数据是['+ state.count +']'
+		}
+	}
+})
+```
+
+```js
+// 使用 getters 第一种方式
+this.$store.getters.名称
+// 使用 getters 的第二种方式
+import { mapGetters } from 'vuex'
+computed: {
+  ...mapGetters(['名称'])
+}
+```
+
+
+
 ## 总结
 
 插值语法往往指定标签体内容，也就是起始与结束标签之间。指令语法用于解析（当成表达式去执行）标签（标签属性、标签体内容、绑定事件）。
@@ -3754,3 +3935,6 @@ render(createElement){
 [pubsub-js](https://github.com/mroderick/PubSubJS) 完成消息与订阅。注意使用 PubSub 对象的 subscribe 方法时，回调函数接收的参数有**两个**，一个是 PubSub 对象 publish 的方法名，一个是传递过来的参数。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=87&spm_id_from=pageDriver)。
 
 this.$nextTick 指定的回调会在 DOM 节点更新后再执行。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=90&spm_id_from=pageDriver)。
+
+data 始终为函数是为防止组件复用时，产生数据的关联关系造成的干扰。
+
