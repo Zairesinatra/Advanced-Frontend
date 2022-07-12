@@ -1530,7 +1530,9 @@ const Child2 = (props) => {
 
 Context 设计目的是为了共享那些对于一个组件树而言是“全局”的数据，例如当前认证的用户、主题或首选语言。如果出现组件层级比较多的情况（例如：`<App>=><Node>=><subNode>=><child>`），使用 Context 进行**跨组件传递数据**。
 
-**如果你只是想避免层层传递一些属性，[组件组合（component composition）](https://zh-hans.reactjs.org/docs/composition-vs-inheritance.html)有时候是一个比 context 更好的解决方案。**
+**如果只是想避免层层传递一些属性，[组件组合（component composition）](https://zh-hans.reactjs.org/docs/composition-vs-inheritance.html)有时候是一个比 context 更好的解决方案。**
+
+必须从 React.createContext 中引入 Provider，类组件可以不适用 Consumer，但是函数组件必须引入 Consumer。value 可以传递一个对象。
 
 ```jsx
 import React from "react";
@@ -1602,6 +1604,94 @@ const Button = (props) => {
 ```
 
 如果两个组件相隔层级比较多，可以使用 Context 实现组件通讯。Context 提供了两个组件：Provider 和 Consumer。Provider 组件用来提供数据，Consumer 组件用来消费数据。
+
+```jsx
+import React, { Component } from "react";
+import "./index.css";
+
+//创建Context对象
+const MyContext = React.createContext();
+const { Provider, Consumer } = MyContext;
+export default class A extends Component {
+  state = { username: "tom", age: 18 };
+
+  render() {
+    const { username, age } = this.state;
+    return (
+      <div className="parent">
+        <h3>我是A组件</h3>
+        <h4>我的用户名是:{username}</h4>
+        <Provider value={{ username, age }}>
+          <B />
+        </Provider>
+      </div>
+    );
+  }
+}
+
+class B extends Component {
+  render() {
+    return (
+      <div className="child">
+        <h3>我是B组件</h3>
+        <C />
+      </div>
+    );
+  }
+}
+
+/* class C extends Component {
+	//声明接收context
+	static contextType = MyContext
+	render() {
+		const {username,age} = this.context
+		return (
+			<div className="grand">
+				<h3>我是C组件</h3>
+				<h4>我从A组件接收到的用户名:{username},年龄是{age}</h4>
+			</div>
+		)
+	}
+} */
+
+function C() {
+  return (
+    <div className="grand">
+      <h3>我是C组件</h3>
+      <h4>
+        我从A组件接收到的用户名:
+        <Consumer>{(value) => `${value.username},年龄是${value.age}`}</Consumer>
+      </h4>
+    </div>
+  );
+}
+```
+
+### 小结
+
+#### 组件间的关系：
+
+- 父子组件
+- 兄弟组件（非嵌套组件）
+- 祖孙组件（跨级组件）
+
+#### 几种通信方式：
+
+		1.props：
+			(1).children props
+			(2).render props
+		2.消息订阅-发布：
+			pubs-sub、event等等
+		3.集中式管理：
+			redux、dva等等
+		4.conText:
+			生产者-消费者模式
+
+#### 比较好的搭配方式：
+
+		父子组件：props
+		兄弟组件：消息订阅-发布、集中式管理
+		祖孙组件(跨级组件)：消息订阅-发布、集中式管理、conText(开发用的少，封装插件用的多)
 
 ## 生命周期
 
@@ -1820,7 +1910,7 @@ componentDidMount	componentDidUpdate	componentWillUnmount
 
 - **`getDerivedStateFromProps`** 会在调用 render 方法之前调用，并且在初始挂载及后续更新时都会被调用。它应返回一个对象来更新 state，如果返回 null 则不更新任何内容。
 - 不管原因是什么，都会在每次渲染前触发此方法
-- 在项目中若 state 的值任何时候都取决于 props ，可以使用 [getDerivedStateFromProps](https://www.bilibili.com/video/BV1wy4y1D7JT?p=44)。
+- <u>在项目中若 state 的值任何时候都完全取决于外部传入的 props</u>，使用 [getDerivedStateFromProps](https://www.bilibili.com/video/BV1wy4y1D7JT?p=44)。
 
 ##### `shouldComponentUpdate()`
 
@@ -1831,110 +1921,6 @@ componentDidMount	componentDidUpdate	componentWillUnmount
 
 - **`getSnapshotBeforeUpdate()`** 在最近一次渲染输出（提交到 DOM 节点）之前调用。它使得组件能在发生更改之前从 DOM 中捕获一些信息（例如，滚动位置）。此生命周期的任何返回值将作为参数传递给 **`componentDidUpdate()`**
 - 此用法并不常见，但它可能出现在 UI 处理中，如需要以特殊方式处理滚动位置的聊天线程等
-
-## Render Props 模式📍
-
-- 知道 render-props 模式有什么作用
-- 能够说出 render-props 的使用步骤
-
-React 组件复用即存在多个组件中的部分功能相似或相同，应该<u>复用相似的功能</u>（如 state、操作 state 的方法）。通常有两种解决方案，即 Render Props模式与 HOC（高阶组件）。值得注意的是这两种方案不是新的 API，而是利用带有 React 自身特点的编码技巧，演化而成的固定模式。
-
-### 思路分析
-
-- 思路：将要复用的 state 和操作 state 的方法封装到一个组件中
-
-- 如何拿到该组件中复用的 state
-
-  - 在使用组件时，添加一个值为函数的prop，通过函数参数来获取
-
-    ```jsx
-    <Mouse render={(mouse) => {}} />
-    ```
-
-- 如何渲染到任意的UI
-
-  - 使用该函数的返回值作为要渲染的UI内容
-
-    ```jsx
-    <Mouse render={(mouse) => {
-        <p>鼠标当前位置{mouse.x},{mouse.y}</p>
-      }} />
-    ```
-
-### 使用步骤
-
-- 创建Mouse组件，在组件中提供复用的逻辑代码（1.状态、2.操作状态的方法）--主要是状态逻辑操作的复用，而不考虑UI结构
-- **将要复用的状态作为 `props.render(state)` 方法的参数，暴露到组件外部**
-- 使用 `props.render()`  的返回值作为要渲染的内容
-
-```react
-class Mouse extends React.Component {
-  // 状态
-  state = {
-    x:0,
-    y:0
-  }
-  // 操作方法
-  handleMouseMove = e => {
-    this.setState({
-      x: e.clientX,
-      y: e.clientY
-    })
-  }
-  // 完成移动事件的监听
-  // componentDidMount必须小写
-  componentDidMount() {
-    window.addEventListener('mousemove', this.handleMouseMove)
-  }
-  render() {
-    return (
-      // console.log(this.props.render(this.state)),
-      this.props.render(this.state)
-    )
-  }
-}
-ReactDOM.render(
-  <div>
-    <span>ReactDevTool查看变化</span>
-    <Mouse render={(geiwodethisstate)=>{
-      return (<p>鼠标位置:{geiwodethisstate.x} {geiwodethisstate.y}</p>)
-    }}></Mouse>
-  </div>,
-  document.getElementById('root')
-);
-```
-
-### children 代替 render 属性
-
-- 注意：并不是该模式叫 render props 就必须使用名为 render 的 prop，实际上可以使用任意名称的prop
-- 把 prop 是一个函数并且告诉组件要渲染什么内容的技术叫做： render props模式
-- 推荐：使用childre代替render属性
-
-```jsx
-<Mouse>
-  {({x, y}) => <p>鼠标的位置是 {x}, {y}</p>}
-</mouse>
-// 组件内部
-this.props.children(this.state)
-```
-
-### 优化代码
-
-- 推荐给 render props 模式添加 props 校验
-
-```jsx
-Mouse.propTypes = {
-	children: PropTypes.func.isRequired
-}
-```
-
--  在组件卸载时移除 mousemove 的绑定
-
-```jsx
-componentWillUnmount() {
-	window.removeEventListener('mousemove', this.handleMouseMove)
-}
-```
 
 ## 高阶组件
 
@@ -2102,6 +2088,15 @@ class App extends React.Component{
 ReactDOM.render(<App/>, document.getElementById('gaojie'))
 ```
 
+### 纯函数
+
+- 一类特别的函数，只要是相同输入（实参），必定得到相同的输出（返回）。
+- 必须遵守约束：
+  - 不得修改参数数据
+  - 不会产生副作用，例如网络请求，输入和输出设备
+  - 不能调用 Date.now() 或者 Math.random() 等不纯方法
+- redux 的 reducer 必须是一个纯函数（不能使用数组方法）
+
 ### 小结
 
 - 组件通讯是构建 React 应用必不可少的一环
@@ -2143,52 +2138,83 @@ D、兄弟组件不可以相互传值
 
 ### setState 说明
 
-- `setState()`更新数据是异步的
-- 注意：使用该语法，后面的`setState`不要依赖前面`setState`的值
+- `setState()`<u>更新数据状态的动作是异步的</u>（调用 setState 后 React 帮助修改状态，setState 本身是主线程调用的<u>同步的方法</u>）。setState 函数的第二个参数是在状态更新（页面完成重新渲染）后立即执行这个回调函数。
+
+  ```jsx
+  ...
+  // 拿不到更新后的值
+  modify = () => {
+    this.setState({count:this.state.count+1})
+    console.log("输出是修改前的值": this.state.count)
+  }
+  // 拿到更新后的值
+  modify = () => {
+    this.setState({count:this.state.count+1}),()=>{console.log("输出是修改前的值": this.state.count)}
+  }
+  ```
+
+- setState 更新状态的2种写法
+
+  - 对象式的 setState 是函数式的 setState 的简写方式（语法糖）
+  - 使用原则：如果新状态不依赖于原状态 => 使用对象方式；如果新状态依赖于原状态 => 使用函数方式；如果需要在 setState() 执行后获取最新的状态数据，要在第二个 callback 函数中读取。
+
+  ```jsx
+  // (1). 对象式的setState
+  /*
+  1.stateChange为状态改变对象(该对象可以体现出状态的更改)
+  2.callback是可选的回调函数, 它在状态更新完毕、界面也更新后(render调用后)才被调用
+  */
+  setState(stateChange, [callback])
+  					
+  // (2). 函数式的setState
+  /*
+  1.updater为返回stateChange对象的函数。
+  2.updater可以接收到state和props。
+  4.callback是可选的回调函数, 它在状态更新、界面也更新后(render调用后)才被调用。
+  */
+  setState(updater, [callback])
+  ```
+
+  ```jsx
+  ...
+  modify = () => { // 函数式setState不需要获取状态值state了,以及被随着 props 一起传入了
+    this.setState((state, props) => ({count:state.count+1}))
+  }
+  ```
+
 - 多次调用`setState`，只会触发一次 render（提高性能）
 
-```jsx
-this.setState((state, props) => {
-	return {
-		count: state.count + 1
-	}
-})
-console.log(this.state.count) // 1
-this.setState((state, props) => {
-	return {
-		count: state.count + 1
-	}
-})
-// 结果仍然只会加1
-```
-
-#### 推荐语法 
-
-- 推荐：使用 **`setState((state,props) => {})`** 语法（回调函数）
-- 参数state： 表示最新的state
-- 参数props： 表示最新的props
-- 多个这种方法写可以使后面的数据基于前面的改变
-
-```jsx
-this.setState((state, props) => {
-	return {
-		count: state.count + 1
-	}
-})
-console.log(this.state.count) // 1
-```
-
-#### 第二个参数
-
-- 场景：在状态更新(页面完成重新渲染)后立即执行这个回调函数
-- 语法：`setState(update[,callback])`
-
-```jsx
-this.setState(
-	(state, props) => {},
-	() => {console.log('这个回调函数在状态更新后立即执行')}
-)
-```
+  ```jsx
+  import React from "react";
+  export default class SetStateTest extends React.Component {
+    state = {
+      count: 0
+    };
+    // 多个这种函数setState方法写可以使后面的数据基于前面的改变
+    // 函数式setState接收最新的 state 与 props
+    handle = () => {
+      // const { count } = this.state;
+      this.setState((state, props) => {
+        return { count: state.count + 1 };
+      });
+      console.log(this.state.count);
+      this.setState((state, props) => {
+        return { count: state.count + 1 };
+      });
+      this.setState((state, props) => {
+        return { count: state.count + props.need };
+      });
+    };
+    render() {
+      return (
+        <div>
+          {this.state.count}
+          <button onClick={this.handle}>setState函数式</button>
+        </div>
+      );
+    }
+  }
+  ```
 
 ### JSX 语法的转化过程📍
 
@@ -2196,15 +2222,36 @@ this.setState(
 - JSX语法被 @babel/preset-react 插件编译为`createElement()` 方法
 - React 元素：是一个对象，用来描述你希望在屏幕上看到的内容
 
-### 组件更新机制
-
-- setState 的两个作用
-  - 修改state
-  - 更新组件
-
-- 过程：父组件重新渲染时，也会重新渲染子组件，但只会渲染当前组件子树（当前组件以其所有子组件）
-
 ### 组件性能优化
+
+#### 路由组件的 lazyLoad
+
+在 Network 选项中可以看到所有资源被一次性打包进 bundle、chunk，再通过路由进入其他页面则不会出现网络请求。最好是路由请求什么组件，则引入相关组件 chunk。lazy 本身是一个高阶函数，需要传入一个函数，在传入函数的函数体中再引入组件。
+
+```jsx
+
+//1.通过React的lazy函数配合import()函数动态加载路由组件 ===> 路由组件代码会被分开打包
+const Login = lazy(()=>import('@/pages/Login'))
+...
+// suspense把注册路由的区域包裹
+//2.通过<Suspense>指定在加载得到路由打包文件前显示一个自定义loading界面
+<Suspense fallback={<h1>loading.....</h1>}>
+  <Switch>
+    <Route path="/xxx" component={Xxxx}/>
+    <Redirect to="/login"/>
+  </Switch>
+</Suspense>
+...
+// 如果引入loading组件是不能懒加载的,正常引入即可
+import Loading from './Load'
+...
+<Suspense fallback={<Loading/>}>
+  <Switch>
+    <Route path="/xxx" component={Xxxx}/>
+    <Redirect to="/login"/>
+  </Switch>
+</Suspense>
+```
 
 #### 减轻state
 
@@ -2227,12 +2274,12 @@ class Hello extends Component {
 
 #### 避免不必要的重新渲染
 
-- 组件更新机制：父组件更新会引起子组件也被更新，这种思路很清晰
-- 问题：子组件没有任何变化时也会重新渲染
-- 如果避免不必要的重新渲染？
+- 组件更新机制：父组件更新会引起子组件也被更新；只要执行 setState，即使不改变状态数据, 组件也会重新低效 render，[点此](https://www.bilibili.com/video/BV1wy4y1D7JT?p=123)。
+- 问题：子组件没有任何变化时也会重新渲染，那么如果避免不必要的重新渲染？
 - 解决方式：使用钩子函数 `shouldComponentUpdate(nextProps, nextState)`
   - 在这个函数中，nextProps 和 nextState 是最新的状态以及属性（this.state拿到的是更新前的状态）
-- 作用：这个函数有返回值，如果返回 true，代表需要重新渲染，如果返回 false 则阻止重新渲染
+  - 但是 Component 中的 shouldComponentUpdate 总是返回 true。
+- 作用：这个函数有返回值，如果返回 true，代表需要重新渲染，如果返回 false 则阻止重新渲染。
 - 触发时机：更新阶段的钩子函数，组件重新渲染前执行（shouldComponentUpdate => render）
 
 ```jsx
@@ -2249,7 +2296,7 @@ class Hello extends Component {
 
 需求：随机生成数字，显示在页面，如果生成的数字与当前显示的数字相同，那么就不需要更新UI，反之更新UI。
 
-利用nextState参数来判断当前组件是否需要更新
+利用 nextState 参数来判断当前组件是否需要更新
 
 ```react
 class App extends React.Component{
@@ -2333,20 +2380,77 @@ class NumberBox extends React.Component {
 ReactDOM.render(<App />, document.getElementById('root'))
 ```
 
-### 纯组件
+### [纯组件](https://www.bilibili.com/video/BV1wy4y1D7JT?p=123)
 
 - 纯组件： PureComponent 与 React.Component 功能相似，很多情况下可以替换，比如输入框、switch 开关组件。
 - 区别： PureComponent 内部自动实现 shouldComponentUpdate，不需要手动比较不必要的更新，减少 render 调用次数性能损耗。
-- 原理：纯组件内部通过分别比对前后两次 props 和 state 的值（更加彻底），来决定是否重新渲染组件。
+- 原理：纯组件内部通过分别比对前后两次 props 和 state 的值（更加彻底），来决定是否重新渲染组件（开发无需手动写阀门）。
 - 其他：`PureComponent`中如果有数据操作最好配合一个第三方组件——`Immutable`一起使用，`Immutable`需要使用npm安装该插件才可以使用，因为`Immutable`可以保证数据的不变性。
 
 ```jsx
-class Hello extends React.PureComponent {
-	render() {
-		return (
-			<div>纯组件</div>
-		)
-	}
+import React, { PureComponent } from "react";
+import "./index.css";
+
+export default class Parent extends PureComponent {
+  state = { carName: "奥迪", stus: ["yy", "zz", "xx"] };
+
+  addStu = () => {
+    /* const {stus} = this.state
+		stus.unshift('小刘')
+		this.setState({stus}) */
+
+    const { stus } = this.state;
+    this.setState({ stus: ["zs", ...stus] });
+  };
+
+  changeCar = () => {
+    //this.setState({carName:'迈巴赫'})
+
+    const obj = this.state;
+    obj.carName = "迈巴赫";
+    console.log(obj === this.state);
+    this.setState(obj);
+  };
+
+  /* shouldComponentUpdate(nextProps,nextState){
+		// console.log(this.props,this.state); //目前的props和state
+		// console.log(nextProps,nextState); //接下要变化的目标props，目标state
+		return !this.state.carName === nextState.carName
+	} */
+
+  render() {
+    console.log("Parent---render");
+    const { carName } = this.state;
+    return (
+      <div className="parent">
+        <h3>我是Parent组件</h3>
+        {this.state.stus}&nbsp;
+        <span>我的车名字是：{carName}</span>
+        <br />
+        <button onClick={this.changeCar}>点我换车</button>
+        <button onClick={this.addStu}>添加owner</button>
+        <Child carName="奔驰" />
+      </div>
+    );
+  }
+}
+
+class Child extends PureComponent {
+  /* shouldComponentUpdate(nextProps,nextState){
+		console.log(this.props,this.state); //目前的props和state
+		console.log(nextProps,nextState); //接下要变化的目标props，目标state
+		return !this.props.carName === nextProps.carName
+	} */
+
+  render() {
+    console.log("Child---render");
+    return (
+      <div className="child">
+        <h3>我是Child组件</h3>
+        <span>我接到的车是：{this.props.carName}</span>
+      </div>
+    );
+  }
 }
 ```
 
@@ -2488,6 +2592,394 @@ const element = {
 
 初次渲染时，React 会根据初始化的 state（model），创建一个虚拟 DOM 对象（树）。根据虚拟 DOM 生成真正的 DOM，渲染到页面。当数据变化后（`setState()`），会重新根据新的数据，创建新的虚拟 DOM 对象（树）。与上一次得到的虚拟 DOM 对象，使用 Diff 算法比对（找不同），得到需要更新的内容。最终，React 只将变化的内容更新（patch）到 DOM 中，重新渲染到页面。组件 `render()` 调用后，根据 **组件状态** 和 **JSX结构** 生成虚拟DOM对象（**`render()`方法的调用并不意味着浏览器进行渲染**，而是调用时意味着 Diff 算法开始进行）
 
+### Hooks
+
+Hook 是 React 16.8.0 版本增加的新特性/新语法。可以让在函数组件中使用 state 以及其他的 React 特性。组件实例的三大属性中，函数组件最初只能使用 props，不能使用 state 和 refs，所以通常写简单组件（没有 state）时使用。
+
+```jsx
+// 三个常用的Hook
+State Hook: React.useState()
+Effect Hook: React.useEffect()
+Ref Hook: React.useRef()
+```
+
+- State Hook
+
+  State Hook 让函数组件也可以有 state 状态，并进行状态数据的读写操作。useState 在第一次初始化指定的值在内部作缓存，避免数据变化更新视图又回归初始状态。其返回值包含2个元素的数组，第1个为内部当前状态值，第2个为更新状态值的函数。setXxx 存在2种写法：setXxx(newValue) 的参数为非函数值，直接指定新的状态值，内部用其覆盖原来的状态值。setXxx(value => newValue) 的参数为函数，接收原本的状态值，返回新的状态值，内部用其覆盖原来的状态值。
+
+  ```jsx
+  const [xxx, setXxx] = React.useState(initValue)  
+  ```
+
+  ```jsx
+  import React from "react";
+  export default function SetCount() {
+    // 底层会处理,默认执行一次而非n次,避免1+n次渲染后每次只能从0加至1
+    const [count, setCount] = React.useState(0);
+    function usestateIncrement() {
+      // 第一种直接写值 setXxx(newValue)
+      // setCount(count + 1);
+      // 第二种为回调函数 setXxx(value => newValue)
+      setCount(count => count + 1);
+    }
+    return (
+      <div>
+        <h3>hook自增一: {count}</h3>
+        <button onClick={usestateIncrement}>点我使用useState</button>
+      </div>
+    );
+  }
+  ```
+
+- Effect Hook
+
+  Effect Hook 可以在函数组件中执行副作用操作（用于模拟类组件中的生命周期钩子）。React 中的副作用操作可以是发 ajax 请求数据获取、设置订阅 / 启动定时器、手动更改真实 DOM。useEffect Hook 可以看做 componentDidMount、componentDidUpdate、componentWillUnmount 三个函数的组合。实际监视的状态在第二个参数中指明，需要监视多个状态数据则放在数组，只看作 componentDidMount 则放入空数组。其中使用 useEffect 函数所返回的函数，相当于 componentWillUnmount。
+
+  ```jsx
+  useEffect(() => { 
+  // 在此可以执行任何带副作用操作
+    return () => { // 在组件卸载前执行
+    // 在此做一些收尾工作, 比如清除定时器/取消订阅等
+    }
+  }, [stateValue]) // 如果指定的是[], 回调函数只会在第一次render()后执行
+  ```
+
+  ```jsx
+  import React from "react";
+  import ReactDOM from "react-dom";
+  export default function UseEffectTest() {
+    // 底层会处理,默认执行一次而非n次,避免1+n次渲染后每次只能从0加至1
+    const [count, setCount] = React.useState(0);
+    React.useEffect(() => {
+      let timer = setInterval(() => {
+        setCount((count) => count + 1);
+      }, 1000);
+      // return clearInterval(timer); 直接写是错误的
+      return () => {
+        clearInterval(timer);
+      };
+    }, []);
+    function unmountthis() {
+      ReactDOM.unmountComponentAtNode(document.getElementById("root"));
+    }
+    return (
+      <div>
+        <h3>hook自增一: {count}</h3>
+        <button onClick={unmountthis}>clickmeunmount</button>
+      </div>
+    );
+  }
+  ```
+
+- Ref Hook
+
+  Ref Hook 可以在函数组件中存储/查找组件内的标签或任意其它数据。保存标签对象，功能与 React.createRef() 一样。
+
+  ```jsx
+  const refContainer = useRef()
+  ```
+
+  ```jsx
+  import React from "react";
+  export default function UseRefTest() {
+    const ref = React.useRef();
+    function getRefVal() {
+      alert(ref.current.value);
+    }
+    return (
+      <div>
+        <input ref={ref}></input>
+        <button onClick={getRefVal}>clickmeunmount</button>
+      </div>
+    );
+  }
+  ```
+
+### Fragment
+
+可以不用必须有一个真实的 DOM 根标签。不想要一个容器包裹，却不得不包裹。在渲染时被丢弃。
+
+```jsx
+import {Fragment} from 'react'
+...
+{/* 允许key属性 */}
+<Fragment><Fragment>
+{/* 不允许属性 */}
+<></>
+```
+
+### [Render Props 模式](https://www.bilibili.com/video/BV1wy4y1D7JT?p=124)📍
+
+总所周知，组件的嵌套关系有两种常见的：嵌套闭合组件标签、标签体内容渲染（纯粹看组件看不出关系相互的引用关系）。但是在前者中，可以通过 props 传递数据给次级组件，而后者不可以。
+
+```jsx
+import React, { Component } from "react";
+export default class NormalP extends Component {
+  render() {
+    return (
+      <div>
+        <h3>我是父组件</h3>
+        <A />
+      </div>
+    );
+  }
+}
+class A extends Component {
+  render() {
+    return (
+      <div>
+        <h3>A组件</h3>
+        <B />
+      </div>
+    );
+  }
+}
+class B extends Component {
+  render() {
+    return (
+      <div>
+        <h3>B组件</h3>
+      </div>
+    );
+  }
+}
+```
+
+```jsx
+import React, { Component } from "react";
+export default class LabelBodyRendering extends Component {
+  render() {
+    return (
+      <div>
+        <h3>我是父组件</h3>
+        <A>
+          <B />
+        </A>
+      </div>
+    );
+  }
+}
+class A extends Component {
+  render() {
+    return (
+      <div>
+        <h3>A组件</h3>
+        {this.props.children}
+      </div>
+    );
+  }
+}
+class B extends Component {
+  render() {
+    return (
+      <div>
+        <h3>B组件</h3>
+      </div>
+    );
+  }
+}
+```
+
+如何向组件内部动态传入带内容的结构（标签）? Vue中使用 slot 技术, 也就是通过组件标签体传入结构  \<A>\<B/>\</A>。React 中使用   children props 通过组件标签体传入结构，或者使用 render props 通过组件标签属性传入结构，而且可以携带数据，一般用 render 函数属性。
+
+```jsx
+// children props
+<A>
+  <B>xxxx</B>
+</A>
+{this.props.children}
+// 如果B组件需要A组件内的数据 => 做不到 
+// ---
+// render props
+<A render={(data) => <C data={data}></C>}></A>
+// A组件
+{this.props.render(内部state数据)}
+// C组件
+读取A组件传入的数据显示 {this.props.data} 
+```
+
+```jsx
+import React, { Component } from "react";
+export default class Renderzy extends Component {
+  render() {
+    return (
+      <div>
+        <h3>我是父组件</h3>
+        <A render={(name) => <B name={name} />} />
+      </div>
+    );
+  }
+}
+class A extends Component {
+  state = {
+    name: "zszy"
+  };
+  render() {
+    const { name } = this.state;
+    return (
+      <div>
+        <h3>A组件</h3>
+        {this.props.render(name)}
+      </div>
+    );
+  }
+}
+class B extends Component {
+  render() {
+    return (
+      <div>
+        <h3>B组件持有人:{this.props.name}</h3>
+      </div>
+    );
+  }
+}
+```
+
+React 组件复用即存在多个组件中的部分功能相似或相同，应该<u>复用相似的功能</u>（如 state、操作 state 的方法）。通常有两种解决方案，即 Render Props模式与 HOC（高阶组件）。值得注意的是这两种方案不是新的 API，而是带有 React 自身特点的编码技巧的固定模式。
+
+将要复用的 state 和操作 state 的方法封装到一个组件中，在使用组件时，添加一个值为函数的prop，通过函数参数来获取，使用该函数的返回值作为要渲染的 UI 内容。
+
+```jsx
+<Mouse render={(mouse) => {
+    <p>鼠标当前位置{mouse.x},{mouse.y}</p>
+}} />
+```
+
+#### Demo
+
+- 创建 Mouse 组件，在组件中提供复用的逻辑代码（1.状态、2.操作状态的方法）-- 主要是状态逻辑操作的复用，而不考虑UI结构
+- **将要复用的状态作为 `props.render(state)` 方法的参数，暴露到组件外部**
+- 使用 `props.render()`  的返回值作为要渲染的内容
+
+```jsx
+import React from "react";
+export default class Mouse extends React.Component {
+  // 状态
+  state = {
+    x: 0,
+    y: 0
+  };
+  // 操作方法
+  handleMouseMove = (e) => {
+    this.setState({
+      x: e.clientX,
+      y: e.clientY
+    });
+  };
+  // 完成移动事件的监听
+  // componentDidMount必须小写
+  componentDidMount() {
+    window.addEventListener("mousemove", this.handleMouseMove);
+  }
+  render() {
+    return (
+      // console.log(this.props.render(this.state)),
+      this.props.render(this.state)
+    );
+  }
+}
+```
+
+```jsx
+<Mouse render={(geiwodethisstate) => (<p>鼠标位置:{geiwodethisstate.x} {geiwodethisstate.y}</p>)}></Mouse>
+```
+
+#### 优化代码
+
+- 推荐给 render props 模式添加 props 校验
+
+```jsx
+Mouse.propTypes = {
+	children: PropTypes.func.isRequired
+}
+```
+
+-  在组件卸载时移除 mousemove 的绑定
+
+```jsx
+componentWillUnmount() {
+	window.removeEventListener('mousemove', this.handleMouseMove)
+}
+```
+
+### ErrorBoundary
+
+错误边界 Error boundary 用来捕获后代组件<u>生命周期中</u>产生的错误（一般情况就是捕获 render 中的错误），渲染出备用页面。避免由于子组件的错误，导致整个页面出不来。其特点是只能捕获后代组件生命周期产生的错误，不能捕获自己组件产生的错误和其他组件在合成事件、定时器中产生的错误。getDerivedStateFromError 配 合 componentDidCatch。错误边界是在容易发生错误的组件的父组件中作出一些操作。
+
+适用于生产环境，在开发环境中使用会出现过一会儿后自动又弹出报错页面。
+
+```jsx
+// 生命周期函数，一旦后台组件报错，就会触发
+static getDerivedStateFromError(error) {
+    console.log(error);
+    // 在render之前触发
+    // 返回新的state
+    return {
+        hasError: true,
+    };
+}
+
+componentDidCatch(error, info) {
+    // 统计页面的错误。发送请求发送到后台去
+    console.log(error, info);
+}
+```
+
+```jsx
+import React, { Component } from "react";
+
+export default class ErrorBoundaryParent extends Component {
+  state = {
+    hasError: "" //用于标识子组件是否产生错误
+  };
+
+  //当Parent的子组件出现报错时候，会触发getDerivedStateFromError调用，并携带错误信息
+  static getDerivedStateFromError(error) {
+    console.log("@@@", error);
+    return { hasError: error };
+  }
+
+  componentDidCatch() {
+    console.log("此处统计错误，反馈给服务器，用于通知编码人员进行bug的解决");
+  }
+
+  render() {
+    return (
+      <div>
+        <h2>我是Parent组件</h2>
+        {this.state.hasError ? <h2>当前网络不稳定，稍后再试</h2> : <Child />}
+      </div>
+    );
+  }
+}
+
+class Child extends Component {
+  state = {
+    users: [
+      { id: "001", name: "tom", age: 18 },
+      { id: "002", name: "jack", age: 19 },
+      { id: "003", name: "peiqi", age: 20 }
+    ]
+    // users: "abc"
+  };
+
+  render() {
+    return (
+      <div>
+        <h2>我是Child组件</h2>
+        {this.state.users.map((userObj) => {
+          return (
+            <h4 key={userObj.id}>
+              {userObj.name}----{userObj.age}
+            </h4>
+          );
+        })}
+      </div>
+    );
+  }
+}
+```
+
 ### 小结
 
 - 原理有助于更好的理解React的自身运行机制
@@ -2584,55 +3076,332 @@ ReactDOM.render(<App />,document.getElementById('root'))
 
 ### 常用组件说明
 
-- **Router 组件：**包裹整个应用，一个 React 应用只需要使用一次
+- **Router 组件：**包裹整个应用，<u>一个 React 应用只需要使用一次</u>
+  
   - 两种常用的Router： HashRouter 和 BrowserRouter（若需要则只需将 BrowserRouter 改成 HashRouter）
   - HashRouter： 使用URL的哈希值实现 （localhost:3000/#/first）
   - 推荐 BrowserRouter：使用H5的history API实现（localhost3000/first）
   
-- **Link 组件：**用于指定导航链接（a标签）
-  - 最终Link会编译成a标签，而to属性会被编译成 a标签的href属性
+- **Link 组件：**用于<u>指定导航链接</u>（a标签）
   
-- **Route 组件：**指定路由展示组件相关信息
+  - 最终 Link 会编译成 a 标签，而 to 属性会被编译成 a 标签的 href 属性
   
-  - path属性：路由规则，这里需要跟Link组件里面to属性的值一致
-  - component属性：展示的组件
-  - Route写在哪，渲染出来的组件就在哪
+- **Route 组件：**指定路由<u>展示组件相关信息</u>
   
-- **NavLink：**就是一个Link，一个会有 style 的 Link
-  activeClassName：string，就是被匹配到的时候，对他增加class name
-  activeStyle：object，就是被匹配到的时候，对他增加css inline-style样式
-  isActive：boolean，利用function来判断该NavLink是否被匹配到
-  exact：是否路径要与网址一模一样
-  strict：是否要严格判断结尾斜线
-
+  - path 属性：路由规则，这里需要跟Link组件里面to属性的值一致
+  - component 属性：展示的组件
+  - Route 写在哪，渲染出来的组件就在哪
+  
+- **NavLink 组件：**一个常用于设置高亮效果的 Link，其 activeClassName：string 属性，就是当匹配到的时候，增加对应样式类名；其 activeStyle：object 就是被匹配到的时候，对增加行内样式样式；属性 isActive：boolean，利用 function 来判断该 NavLink 是否被匹配；exact 属性为是否路径要与网址一模一样；strict 属性表示是否要严格判断结尾斜线。
+  
   ```html
   import { NavLink } from 'react-router-dom'
+  <!-- activeClassName 默认激活样式类名就是active -->
+  <NavLink to="/faq" activeClassName="active">FAQs</NavLink>
   <NavLink to="/faq" activeClassName="selected">FAQs</NavLink>
   <NavLink to="/faq" activeStyle={{ fontWeight: "bold", color: "red" }}>FAQs</NavLink>
   ```
+  
+- **[封装 MyNavLink](https://www.bilibili.com/video/BV1wy4y1D7JT?p=80&spm_id_from=pageDriver)**
+  
+  传递<u>属性</u>与<u>标签体内容</u>，前者使用 props，后者使用 props 中的 children 这个 key 进行接收。 
+  
+  ```jsx
+  {/* consumer */}
+  {/* 标签体内容也算特殊的标签属性 */}
+  <MyNavLink to="/about" a={1} b={2}>About</MyNavLink>
+  {/* provider */}
+  import React, {Component} from 'react'
+  import {NavLink} from 'react-router-dom'
+  export defaut class MyNavLink extends Component{
+    render(){
+      console.log(this.props);
+      return(
+        <NavLink activeClassName="zsNavLink" className="list-group-item" {...this.props}>{this.props.children}</NavLink>
+      )
+    }
+  }
+  {/* optimize */}
+  import React, {Component} from 'react'
+  import {NavLink} from 'react-router-dom'
+  export defaut class MyNavLink extends Component{
+    render(){
+      console.log(this.props);
+      return(
+        <NavLink activeClassName="zsNavLink" className="list-group-item" {...this.props}/>
+      )
+    }
+  }
+  ```
+  
+- **路由组件和一般组件的区别**
+
+  - 写法不同
+
+    ```jsx
+    <Demo />
+    <Route path="/demo" component={Demo} />
+    ```
+
+  - 存放位置不同：一般组件 components 文件夹、路由组件 page 文件夹
+
+  - 接收的 props 不同：一般组件根据组件标签的传递接收对应的值、路由组件一般不直接写标签，靠路由器接收传入的三个属性
+
+- **props**
+
+  - history 保存编程式导航的各种方法以及 location、length
+  - location 保存 search、pathname、state
+  - match 保存 isExact、params、path、url
+
+- **Switch 组件：**在匹配对应的路径成功时，Route 仍然会继续向下查找是否有能进行匹配的路径的组件，此时会存在大量的性能消耗。但是如果引入 Switch 组件包裹 Route 后，匹配成功则不会再向下查找匹配的 path。通过引入的 switch 标签包裹注册路由后，匹配一个路由就不会接着往下匹配了，避免匹配过多路由的资源消耗，提高效率进行单一匹配。（多个 Route 时使用）
+
+  ```jsx
+  {/* 最终展示AAbout */}
+  <Route path="/about" component={About} />
+  <Route path="/a" component={A} />
+  <Route path="/b" component={B} />
+  <Route path="/about" component={AAbout} />
+  {/* 最终展示About */}
+  <Switch>
+    <Route path="/about" component={About} />
+    <Route path="/a" component={A} />
+    <Route path="/b" component={B} />
+    <Route path="/about" component={AAbout} />
+  </Switch>
+  ```
+
+- **匹配模式**
+
+  - [模糊匹配](https://www.bilibili.com/video/BV1wy4y1D7JT?p=83)
+
+  默认情况下，React 路由是模糊匹配模式，即只要组件 to 属性的 pathname 以 Route 组件的 path 开头就会匹配成功。
+
+  模糊匹配会导致渲染问题。如下代码，当 Link 组件的 to 属性值为 '/login' 时候，默认路由也被匹配成功。
+
+  ```jsx
+  <Link to="/login">登录页面</Link> // 组件 to 属性的 pathname 以 Route 组件的 path 开头(也就是 location.pathname)
+  <Route path="/" component={Home} /> // 依旧显示
+  <Route path="/login" component={login} /> // 匹配成功
+  ```
+
+  | path   | 能够匹配的pathname           |
+  | ------ | ---------------------------- |
+  | /      | 所有的pathname               |
+  | /first | /first、/first/a、/first/a/b |
+
+  - 严格匹配
+
+  如何避免默认路由任何情况下都会展示的问题？给 Route 组件添加 exact 属性，让其变为**精准匹配模式**，即只有当 path 和 pathname 完全匹配时才会展示该路由。（使用原则是影响到了页面的呈现，就开启精确匹配）
+
+  ```jsx
+  // 此时该组件只能匹配 pathname='/'着一种情况
+  <Route exact path="/" component=... />
+  ```
+
+- **Redirect 组件**
+
+  不同于 vue 中路由数组的一项中的属性，在 React 中，其是一个组件。一般写在所有路由注册的最下方，当所有路由无法匹配，则跳转指定的路由。
+
+  ```jsx
+  // vue
+  const router = new VueRouter({
+    routes: [
+      { path: '/a', redirect: '/b' }, // 路由
+      { path: '/c', redirect: { name: 'foo' }}, // 命名路由
+      { path: '/d', redirect: to => { // 函数
+        // the function receives the target route as the argument
+        // return redirect path/location here.
+      }},
+      { path: '/e', component: E, alias: '/ee' } // alias
+    ]
+  })
+  // React
+  // to可直接跟pathname字符串或者一个包含pathname与state的对象
+  ...
+  <Redirect to="/home" />
+  <Redirect to={{ pathname: "/login", state: { from: props.location }}} />
+  ```
+
+- **多级路由（嵌套路由）**
+
+  这里要注意，若在 Home 组件的容器中，对 home 路由开启了严格模式，那么存在于 Home 组件下的 news 和 message 组件路由匹配不了 "/home"，导致 Home 组件下的 News 与 Message 组件显示不出。多级路由，据以下代码分析，首先匹配 "/home" 的 path 完成展示 Home 组件，Home 组件下又存在两个路由匹配的组件待匹配时显示。（[不能随意开启精确匹配的原因](https://www.bilibili.com/video/BV1wy4y1D7JT?p=85)）
+
+  ```jsx
+  // Home
+  <NavLink to="/home/news">News</NavLink>
+  <NavLink to="/home/message">Message</NavLink>
+  ...
+  <Switch>
+    {/* 注册子路由需要写上父路由的前缀-在父组件下的子组件情况 */}
+  	<Route path="/home/news" component={News}/>
+    <Route path="/home/message" component={Message}/>
+  </Switch>
+  ```
+
+- **路由传参**
+
+  在 Ajax 中存在三类传递参数的类型：query、params、body。其中请求体参数 body 还有两种形式：urlencoded、json。
+
+  ```js
+  request.ContentType = "application/json; charset=utf-8";
+  request.ContentType = "application/x-www-form-urlencoded";
+  // 第一种情况是告诉 Web 服务器正在发布 JSON 数据
+  {"Name": "zaire sinatra", "Age": 21}
+  // 第二种情况是告诉 Web 服务器将对 URL 中的参数进行编码
+  Name=zaire+sinatra&Age=21
+  ```
+
+  - 向路由组件传递 params 参数
+
+    ```jsx
+    // Message
+    import React, {Component} from 'react'
+    export default class Message extends Component{
+      state = {
+        messageArr: [
+          {id: '01', title: 'msg1'},{id: '02', title: 'msg2'},{id: '03', title: 'msg3'},
+        ]
+      }
+      render(){
+        return (
+          <div>
+            <ul>
+              {
+                this.state.messageArr.map(msgObj) => {
+                  return(
+                    <li key={msgObj.id}>
+                      {/* 向路由组件传递 params 参数 */}
+                      <Link to={`/home/message/detail/${msgObj.id}/${msgObj.title}`}>{msgObj.title}</Link>
+                    </li>
+                  )
+                }
+              }
+            </ul>
+            <hr />
+            {/* 接收 params 参数 */}
+            <Route path="/home/message/detail/:id/:title" component={Detail}/>
+          </div>
+        )
+      }
+    }
+    ```
+
+    ```jsx
+    // Details
+    import React, {Component} from 'react';
+    const DetailData = [
+      {id: '01', content: 'Hello Texas'},
+      {id: '02', content: 'Hello zs'},
+      {id: '03', content: 'Hello zy'},
+    ]
+    export default class Detail extends Component {
+      render(){
+        console.log(this.props) // {..., match{..., params:{id:"", title:""}}}
+        const {id, title} = this.props.match.params
+        const findResult = DetailData.find((detailobj) => {
+          return detailobj.id === id
+        })
+        return (
+        	<ul>
+          	<li>ID:{id}</li>
+            <li>Title:{title}</li>
+            <li>Content:{detailobj.content}</li>
+          </ul>
+        )
+      }
+    }
+    ```
+
+  - 向路由组件传递 search 参数（很像 ajax 中的 query 参数）
+
+    获取到的 search 是 urlencoded 编码字符串，需要借助 querystring 解析
+
+    ```jsx
+    ...
+    {/* 向路由组件传递 search 参数 */}
+    <Link to={`/home/message/detail/?id=${msgObj.id}&title=${msgObj.title}`}>{msgObj.title}</Link>
+    {/* search 参数无需声明接收,正常注册路由即可 */}
+    <Route path="/home/message/detail" component={Detail}/>
+    ...
+    ```
+
+    ```jsx
+    // 储备
+    ...
+    import qs from 'querystring' // 对象转为 urlencoded => react脚手架自带的库
+    let ownerobj = {name: 'zs', age: 21}
+    qs.stringfy(ownerobj) // name=zs&age=21
+    qs.parse(qs.stringfy(ownerobj)) // {name: 'zs', age: 21}
+    ...
+    ```
+
+    ```jsx
+    ...
+    const {search} = this.props.location
+    const {id, title} = qs.parse(search.slice(1))
+    ...
+    ```
+
+  - 向路由组件传递 state 参数（地址栏无东西）
+
+    ```jsx
+    ...
+    {/* 向路由组件传递 search 参数 */}
+    <Link to={{pathname:'/home/message/detail',state:{id:msgObj.id, title:msgObj.title}}>{msgObj.title}</Link>
+    {/* state 参数无需声明接收,正常注册路由即可 */}
+    <Route path="/home/message/detail" component={Detail}/>
+    ...
+    ```
+
+    ```jsx
+    // 接收 state 参数
+    const {id, title} = this.props.location.state || {}
+    ```
+
 
 ### 路由的执行过程
 
 - 当我们点击 Link 组件 的时候，修改了浏览器地址栏中的 URL
-- React路由监听地址栏 URL 的变化
-- React路由内部遍历所有的Route组件，拿着Route里面 path规则 与 pathname 进行匹配（location.pathname === {path}）
-- 当路由规则（path）能够匹配地址栏中的 pathname 时，就展示该Route组件的内容
+- React 路由监听地址栏 URL 的变化
+- React 路由内部遍历所有的 Route 组件，拿着 Route 里面 path 规则 与 pathname 进行匹配（location.pathname === {path}）
+- 当路由规则（path）能够匹配地址栏中的 pathname 时，就展示该 Route 组件的内容
 
 ### 编程式导航
 
-- **场景：**点击登陆按钮，登陆成功后，通过代码跳转到后台首页，如何实现？
+- **场景：**点击登陆按钮，登陆成功后，通过代码跳转到后台首页，如何实现？图片不能使用 Link 怎么跳转呢？
+
 - **编程式导航：**通过JS代码来实现页面跳转
-- history是React路由提供的，用于获取浏览器历史记录的相关信息
-- **push(path)：**跳转到某个页面，参数path表示要跳转的路径
-- go(n)：前进或后退功能，参数n表示前进或后退页面数量
+
+- history 是 React 路由提供的，用于获取浏览器历史记录的相关信息
+
+- push(path)：跳转到某个页面，参数 path 表示要跳转的路径
+
+- <u>go(n)</u>：前进或后退功能，参数n表示前进或后退页面数量
+
+- <u>goBack 和 goForward</u> 分别是后退、前进一步
+
+- <u>push 和 replace</u>：默认 Link 组件开启的是 push，若需要使用 replace 取缔 history 栈的内容，增加属性 replace 即可。push 和 replace 一个是压栈，一个是替换；前者留下历史记录，后者不留下。
+
+  ```jsx
+  <Link replace={true} to={{pathname:'/home/message/detail' ,state:{...}}}>
+  ```
 
 ```jsx
 class Login extends Component {
-  handleLogin = () => {
-    // ... 
-    this.props.history.push('/home')
+  ...
+  handleLoginP = (id, title) => {
+    // this.props.history.push(`/home/${id}/${title}`) // query
+    this.props.history.push(`/home?id=${id}&title=${title}`) // search
+    // this.props.history.push('/home',{id, title}) // state
   }
-  render(){...省略其他代码}
+  handleLoginR = (id, title) => {
+    // ... 
+    this.props.history.replace(`/home/${id}/${title}`)
+  }
+  render(){
+    <button onClick={() => this.handleLoginP(msgObj.id, msgObj.title)}></button>
+    <button onClick={() => this.handleLoginR(msgObj.id, msgObj.title)}></button>
+  }
 }
 ```
 
@@ -2646,33 +3415,32 @@ class Login extends Component {
 <Route path="/" component={Home} />
 ```
 
-### 匹配模式
+### [withRouter](https://www.bilibili.com/video/BV1wy4y1D7JT?p=92)
 
-#### 模糊匹配
-
-默认情况下，React 路由是模糊匹配模式，即只要组件 to 属性的 pathname 以 Route 组件的 path 开头就会匹配成功。
-
-模糊匹配会导致渲染问题。如下代码，当 Link 组件的 to 属性值为 '/login' 时候，默认路由也被匹配成功。
+想要在一般组件操作路由（路由组件），如果直接使用编程式导航则会报错，因为一般组件中没有 this.props.history 这个对象。那么如何让一般组件使用路由组件的 API？—— withRouter 函数。withRouter 接收一个一般组件，为一般组件加上路由组件的三个对象。
 
 ```jsx
-<Link to="/login">登录页面</Link> // 组件 to 属性的 pathname 以 Route 组件的 path 开头(也就是 location.pathname)
-<Route path="/" component={Home} /> // 依旧显示
-<Route path="/login" component={login} /> // 匹配成功
+import {withRouter} from 'react-router-dom'
+class Header extends Component{...}
+export default withRouter(Header)
 ```
 
-| path   | 能够匹配的pathname           |
-| ------ | ---------------------------- |
-| /      | 所有的pathname               |
-| /first | /first、/first/a、/first/a/b |
+### BrowserRouter 和 HashRouter 的区别
 
-#### 精准匹配
+- 底层原理不同
+  - BrowserRouter 使用 H5 的 history API，不兼容 IE9 一以下版本；
+  - HashRouter 使用的是 URL 的哈希值（锚点刚好形成历史记录的副作用）；
+- path 表现形式不同
+  - BrowserRouter 的路径中没有 #
+  - HashRouter 的路径中包含 #
+- 刷新后对路由 state 参数的影响
+  - BrowserRouter 没有任何影响，因为 state 保存在 history 对象中；
+  - HashRouter 刷新后会导致路由 state 参数丢失（未用上 history 这个 API）；
+- HashRouter 常用于解决路径错误相关问题
 
-如果避免默认路由任何情况下都会展示的问题？给 Route 组件添加 exact 属性，让其变为**精准匹配模式**，即只有当 path 和 pathname 完全匹配时才会展示该路由。
+### BUGS 解决
 
-```jsx
-// 此时该组件只能匹配 pathname='/'着一种情况
-<Route exact path="/" component=... />
-```
+[多级路径导致 BootStrap 样式丢失问题](https://www.bilibili.com/video/BV1wy4y1D7JT?p=82)。解决方案是 public 中 html 文件引入样式将 . 删除、将 . 换为 %PUBLIC_URL%（public 文件夹绝对路径）、BrowserRouter 换为 HashRouter。
 
 1、在react中下列代码可以实现编程式导航的是（A）
 
@@ -2693,6 +3461,243 @@ A、a b c d	B、b a d c	C、b d c a	D、d a c b
 3、在react中使用路由时可以实现跳转功能的组件是（C）
 
 A、`<routeLink to="/index.html">走你</routeLink>`	B、`<link href="/index.html">走你</link>`	C、`<link to="/index.html">走你</link>`	D、`<routeLink href="/index.html">走你</routeLink>`
+
+## Redux
+
+redux 是一个专门做状态管理的 JS 库，可以应用在 react、angular、vue 等项目中。主要集中式管理 react 应用中多个组件共享的状态。
+
+当某个组件的状态需要其他组件随时可以拿到（共享）；一个组件需要改变另一个组件的状态（通信）
+
+![redux原理图](./assets/redux原理图.png)
+
+### 三个核心概念
+
+- 动作对象 action，包含两个属性：**必要**表示**唯一标识**属性且值为**字符串**的 **type**、**可选数据属性**，值为**任意类型**的 data。
+
+  ```jsx
+  {type:'ADD_USER',data:{name:'zs',age:21}}
+  ```
+
+- 初始化、操作状态的 reducer，加工时根据旧 state 和 action，产生新的 state 的纯函数（不能使用数组的 push、shift 之流方法，这样就非纯函数，且浅层比较不会更新界面）。
+
+- 联系对象 store 的作用是将 state、action、reducer 关联在一起。
+
+  ```jsx
+  // 获得 store
+  import {createStore} from 'redux'
+  import reducer from './reducers'
+  const store = createStore(reducer)
+  // store 功能
+  getState() // 得到 state
+  dispatch(action) // 分发action,出发reducer调用,产生新state
+  subscribe(listener) // 注册监听,产生新state,自动调用
+  ```
+
+- 安装 redux
+
+  ```shell
+  yarn add redux
+  ```
+
+- 使用 redux
+
+  - store.js
+    - 引入 redux 的 createStore 函数，创建 store；
+    - createStore 调用时要传入一个为其服务的 reducer
+    - 暴露 store 对象
+  - ???_reducer.js
+    - reducer 本质是一个函数，接收 preState、action，返回加工后的状态；
+    - reducer 有两个作用：初始化状态、加工状态
+    - reducer 第一次调用是 store 自动触发，传递的 prestate 为 undefined，action 为 @@init@@。
+  - 在 index 中检测 store 状态的变化，一旦变化重新渲染 \<App/>。因为 redux 并非 FB 出品，不能呢个主动 render。
+  - 完成常量模块封装
+
+- 异步 action
+
+  action 在表现为 Object{} 类型时为同步 action，当表现为函数类型时，为异步 action。但是 store 接受不了函数，需要中间件 redux-thunk。redux-thunk 作用是，若传递的 action 为对象类型，则传递给 reducer；若传递的 action 是函数，则自我执行。
+
+- 关于 react-redux
+
+  - redux 非 FB 出品，react-redux 为 FB 出品。
+
+  - 所有 UI 组件外部应该被包裹一个容器组件。
+
+  - 容器组件是真正和 redux 打交道的，内部可以任意使用 redux 的 api。
+
+  - UI 组件不能使用任何 redux 的API。
+
+  - 容器给 UI 传递状态，操作状态的方法均由 props 传递。
+
+  - ![react-redux](./assets/react-redux模型图.png)
+
+  - 通过 react-redux 的 `connect(mapStateTopProps, mapDispatchToProps)(UI 组件)` 函数创建一个容器组件
+
+    - [mapStateToProps](https://www.bilibili.com/video/BV1wy4y1D7JT?p=105) 映射状态，返回值是一个对象
+
+    - mapDispatchToProps 映射操作状态的方法，返回值是一个对象
+
+    - ```jsx
+      const mapStateToProps = state => ({count: state})
+      const mapDispatchToProps = dispatch => ({ // 函数形式
+        jia:number => dispatch(createIncrementAction(number)),
+        jian:number => dispatch(createDecrementAction(number)),
+        jiaAsync:(number, time) => dispatch(createIncrementAsyncAction(number,time)),
+      })
+      ```
+
+  - 优化
+
+    - mapDispatchToProps 也可以是一个对象；使用 react-redux 后 action 也会自动被 dispatch。
+
+      ```jsx
+      //使用connect()()创建并暴露一个Count的容器组件
+      export default connect(
+      	state => ({count:state}),
+      //mapDispatchToProps的一般写法
+      /* dispatch => ({
+      	jia:number => dispatch(createIncrementAction(number)),
+      	jian:number => dispatch(createDecrementAction(number)),
+      	jiaAsync:(number,time) => dispatch(createIncrementAsyncAction(number,time)),
+      }) */
+      
+      //mapDispatchToProps的简写
+      {
+      	jia:createIncrementAction,
+      	jian:createDecrementAction,
+      	jiaAsync:createIncrementAsyncAction,
+      })(Count)
+      ```
+
+    - 使用了 react-redux 后不需要再监测 redux 中状态的改变，如果 redux 状态改变会自动重新渲染 App 组件。
+
+      ```jsx
+      store.subscribe(()=>{
+      ReactDOM.render(<App/>, document.getElementById('root'))
+      })
+      ```
+
+    - react-redux 中的 Provider 组件避免容器组件每一个都需要传入 `store={store}` 属性。
+
+      ```jsx
+      // index.js
+      import React from 'react'
+      import ReactDOM from 'react-dom'
+      import App from './App'
+      import store from './redux/store'
+      import {Provider} from 'react-redux'
+      
+      ReactDOM.render(
+      	<Provider store={store}>
+      		<App/>
+      	</Provider>,
+      	document.getElementById('root')
+      )
+      ```
+
+    - 文件合并：将 UI 组件写入容器组件中，并默认暴露容器组件。
+
+      ```jsx
+      import React, { Component } from 'react'
+      //引入action
+      import {
+      	createIncrementAction,
+      	createDecrementAction,
+      	createIncrementAsyncAction
+      } from '../../redux/count_action'
+      //引入connect用于连接UI组件与redux
+      import {connect} from 'react-redux'
+      
+      //定义UI组件
+      class Count extends Component {
+      
+      	state = {carName:'奔驰c63'}
+      
+      	//加法
+      	increment = ()=>{
+      		const {value} = this.selectNumber
+      		this.props.jia(value*1)
+      	}
+      	//减法
+      	decrement = ()=>{
+      		const {value} = this.selectNumber
+      		this.props.jian(value*1)
+      	}
+      	//奇数再加
+      	incrementIfOdd = ()=>{
+      		const {value} = this.selectNumber
+      		if(this.props.count % 2 !== 0){
+      			this.props.jia(value*1)
+      		}
+      	}
+      	//异步加
+      	incrementAsync = ()=>{
+      		const {value} = this.selectNumber
+      		this.props.jiaAsync(value*1,500)
+      	}
+      
+      	render() {
+      		//console.log('UI组件接收到的props是',this.props);
+      		return (
+      			<div>
+      				<h1>当前求和为：{this.props.count}</h1>
+      				<select ref={c => this.selectNumber = c}>
+      					<option value="1">1</option>
+      					<option value="2">2</option>
+      					<option value="3">3</option>
+      				</select>&nbsp;
+      				<button onClick={this.increment}>+</button>&nbsp;
+      				<button onClick={this.decrement}>-</button>&nbsp;
+      				<button onClick={this.incrementIfOdd}>当前求和为奇数再加</button>&nbsp;
+      				<button onClick={this.incrementAsync}>异步加</button>&nbsp;
+      			</div>
+      		)
+      	}
+      }
+      export default connect(
+      	state => ({count:state}),
+      	{
+      		jia:createIncrementAction,
+      		jian:createDecrementAction,
+      		jiaAsync:createIncrementAsyncAction,
+      	}
+      )(Count)
+      ```
+
+<iframe src="https://codesandbox.io/embed/romantic-parm-2dl66?fontsize=14&hidenavigation=1&theme=dark"
+     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
+     title="redux"
+     allow="accelerometer; ambient-light-sensor; camera; encrypted-media; geolocation; gyroscope; hid; microphone; midi; payment; usb; vr; xr-spatial-tracking"
+     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+   ></iframe>
+
+### redux-DevTools
+
+需要安装库配合 redux-devtools
+
+```shell
+yarn add redux-devtools-extension
+```
+
+在 store.js 中引入 redux-devtools-extension
+
+```js
+import {composeWithDevTools} from 'redux-devtools-extension'
+...
+export default createStore(allReducer, composeWithDevTools(applyMiddleware(thunk)))
+```
+
+### 快速开启服务器
+
+```shell
+npm install serve -g
+```
+
+```shell
+# 当前文件夹作为主目录开启服务器
+serve
+# 当前文件夹的 zs 文件夹开启服务器
+serve zs
+```
 
 ## 易于维护组件要素
 
@@ -2767,10 +3772,6 @@ module.exports = function(app) {
 - 绑定事件注意 this 指向
 
 - 推荐受控组件处理表单
-
-- 标签体也是特殊的标签属性——children
-
-- 通过引入的 switch 标签包裹注册路由后，匹配一个路由就不会接着往下匹配了，避免匹配过多路由的资源消耗。因为通常情况下 path 与路径是一一对应关系。应该使用 switch 包裹提高效率进行单一匹配。
 
 - 方法别写到 render 函数的代码块内，切记！
 

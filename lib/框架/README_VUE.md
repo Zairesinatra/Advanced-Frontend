@@ -6,11 +6,11 @@
 
 Vue 是一套用于**构建用户界面的渐进式框架**。渐进式即需要多少使用多少，声明式渲染 -> 组件系统 -> 客户端路由（单页面应用、局部更新、浏览器历史回执）-> 集中状态管理（大规模业务数据）-> 项目构建。
 
-框架与库界限已逐渐模糊，不必细究，库主要以提供API为主、框架提供基础类服务。Vue 的核心关注**视图层**，虚拟 DOM 帮助高效更新页面局部内容。
+框架与库界限已逐渐模糊，不必细究，库主要以提供 API 为主、框架提供基础类服务。Vue 的核心关注**视图层**，虚拟 DOM 帮助高效更新页面局部内容。
 
 ### Vue.config
 
-`Vue.config`是一个包含 Vue 全局配置的对象。[productionTip](https://cn.vuejs.org/v2/api/index.html#productionTip) 设置为 false 可关闭 vue 在启动时生成生产提示。
+`Vue.config` 是一个包含 Vue 全局配置的对象。[productionTip](https://cn.vuejs.org/v2/api/index.html#productionTip) 设置为 false 可关闭 vue 在启动时生成生产提示。
 
 ```js
 Vue.config.productionTip
@@ -18,7 +18,7 @@ Vue.config.productionTip
 
 ### helloworld
 
-Vue--编译-->原生 JavaScript；在 VSCode 的 live server 下，会在 5500 端口开启服务器托管资源，此处可能存在 favicon 找不到。引入 vue 后全局会多出一个 Vue 的构造函数。最好在调整配置后增加代码。实例化 Vue 对象需要传入一个参数，也就是配置对象。其配置对象有 ele（id 选择器）让实例与容器建立关系；data 对象设置数据，供指定的容器使用。
+Vue -- 编译 --> 原生 JavaScript；在 VSCode 的 live server 下，会在 5500 端口开启服务器托管资源，此处可能存在 favicon 找不到。引入 vue 后全局会多出一个 Vue 的构造函数。最好在调整配置后增加代码。实例化 Vue 对象需要传入一个参数，也就是配置对象。其配置对象有 ele（id 选择器）让实例与容器建立关系；data 对象设置数据，供指定的容器使用。
 
 一个 vue 实例不能同时接管两个容器，前一个容器渲染，其后容器不会渲染。一个容器只能被一个 vue 实例接管，除了首个实例后续实例不产生效果且报错。总的来说，容器与实例是以一一对应的关系。
 
@@ -70,10 +70,10 @@ Vue--编译-->原生 JavaScript；在 VSCode 的 live server 下，会在 5500 �
             }
           // 函数式 —— 不能使用箭头函数,this会不再指向实例;在组件使用必须用函数式
           data: function(){ // data() {...} 简写
-          	return {
-            	name: 'helloworld Vue!'
-          	}
-        	}
+              return {
+                name: 'helloworld Vue!'
+              }
+            }
         })
     </script>
 </body>
@@ -117,17 +117,17 @@ Object.defineProperty(person,'age',{
 
 ### 模板语法
 
-这里理解类比 art-template 实现渲染功能——数据填充HTML标签：通过 Ajax 获取后端数据，渲染模板。前端渲染方式通常有原生JS拼接字符串、前端模板引擎（不提供事件机制）、Vue模板语法。
+这里理解类比 art-template 实现渲染功能 —— 数据填充HTML标签：通过 Ajax 获取后端数据，渲染模板。前端渲染方式通常有原生 JS 拼接字符串、前端模板引擎（不提供事件机制）、Vue 模板语法。
 
 ## 指令
 
 - 本质就是<font color="red">自定义属性</font>
-- `Vue`中指定都是以 `v-` 开头 
+- `Vue` 中指定都是以 `v-` 开头 
 
-###  v-cloak
+### v-cloak
 
 - 防止<font color="red">页面加载时出现闪烁问题</font>
-
+  
   ```html
    <style type="text/css">
     /* 1、通过属性选择器,选择到带有属性 v-cloak的标签 使其隐藏 */
@@ -156,9 +156,8 @@ Object.defineProperty(person,'age',{
   </body>
   </html>
   ```
-  
 
-###  v-text
+### v-text
 
 - v-text指令用于将数据填充到标签中，作用于插值表达式类似，但是**没有闪动问题**
 - 如果数据中有HTML标签会将HTML标签一并输出
@@ -167,10 +166,10 @@ Object.defineProperty(person,'age',{
 ```html
 <div id="app">
     <!--  
-		注意:在指令中不要写插值语法  直接写对应的变量名称 
+        注意:在指令中不要写插值语法  直接写对应的变量名称 
         在 v-text 中 赋值的时候不要在写 插值语法
-		一般属性中不加 {{}}  直接写 对应 的数据名 
-	-->
+        一般属性中不加 {{}}  直接写 对应 的数据名 
+    -->
     <p v-text="msg"></p>
     <p>
         <!-- Vue  中只有在标签的 内容中 才用插值语法 -->
@@ -188,7 +187,7 @@ Object.defineProperty(person,'age',{
 </script>
 ```
 
-###  v-html
+### v-html
 
 与 v-text 相似，但可以将 HTML 片段填充到标签中，即浏览器支持对其结构解析（v-text 输出的是纯文本）。但是存在安全问题（XSS攻击）, 一般只在可信任内容上使用 v-html，**永不**用在用户提交的内容上。
 
@@ -210,7 +209,7 @@ Object.defineProperty(person,'age',{
 </script>
 ```
 
-###  v-pre
+### v-pre
 
 显示原始信息，跳过 vue 编译过程，即<font color="red">跳过这个元素和它的子元素的编译过程</font>。**一些静态的内容不需要编译加这个指令可以<font color="red">加快渲染</font>**。
 
@@ -272,7 +271,7 @@ Object.defineProperty(person,'age',{
 
 MVC 是后端的分层开发概念；MVVM 主要关注于前端视图层分离，也就是说 MVVM 把前端的视图层，分为了三部分 Model、View、 VM ViewModel。model 层提供数据，即 Vue 中数据层都放在 data 里面。view 视图层本质是展示效果的 DOM，Vue 中的 view 即 HTML 页面视图层。vm 即 Vue 的实例（view-model 控制器，将数据和视图层建立联系）。v 与 m 不能直接交互，需要 vm 通过 **DOMListeners**（DOM改变影响数据）、数据绑定 **DataBindings** 连接 model 和 data。在 data 上的所有属性最后都出现在了 vm 上，vm 上所有属性以及 vue 原型上的所有属性，在 vue 模板中都可以直接使用（有且还有 JavaScript 表达式）。
 
-###   `v-on`
+### `v-on`
 
 - 用来绑定事件
 
@@ -284,7 +283,7 @@ MVC 是后端的分层开发概念；MVVM 主要关注于前端视图层分离�
   // 可读性不好,操作逻辑一般需要抽离
   ```
 
-###  `v-on`事件函数中传入参数
+### `v-on`事件函数中传入参数
 
 ```html
 <!-- HTML5中的申明简单=>浏览器的“信息”,说明期望的文档类型 -->
@@ -339,7 +338,7 @@ MVC 是后端的分层开发概念；MVVM 主要关注于前端视图层分离�
 </html>
 ```
 
-###  事件修饰符
+### 事件修饰符
 
 - 在事件处理程序中调用 `event.preventDefault()` 或 `event.stopPropagation()` 是非常常见的需求。
 - `Vue`不推荐我们操作`DOM`，为了解决这个问题，`Vue.js` 为 `v-on` 提供了<font color="red">**事件修饰符**</font>
@@ -495,7 +494,7 @@ MVC 是后端的分层开发概念；MVVM 主要关注于前端视图层分离�
         .down =>  下
         .left =>  左
         .right =>  右
-				caps-lock => 切换-->
+                caps-lock => 切换-->
   <!-- 系统修饰键: ctrl、alt、shift、meta 与 keyup 使用需要按下其他键,在其他键释放后事件触发;keydown正常触发 -->
     <script type="text/javascript" src="../srcjs/vue.js"></script>
     <script>
@@ -568,11 +567,11 @@ MVC 是后端的分层开发概念；MVVM 主要关注于前端视图层分离�
 
 ### v-bind
 
-- <font color="red">DOM元素中属性操作=>`v-bind`、DOM元素操作=>`v-on`</font>
+- <font color="red">DOM 元素中属性操作=>`v-bind`、DOM元素操作=>`v-on`</font>
 - `v-bind`指令被用来<font color="red">响应地更新 HTML 属性</font>
 - `v-bind:href`可以缩写为 `:href`
--  原生JavaScript通过`getAttribute`获取属性、`setAttribute`设置属性
--  使用 v-bind 相当于将字符串内容作为 JS 表达式执行
+- 原生JavaScript通过`getAttribute`获取属性、`setAttribute`设置属性
+- 使用 v-bind 相当于将字符串内容作为 JS 表达式执行
 
 ```html
 <!-- 绑定一个属性 -->
@@ -589,13 +588,13 @@ MVC 是后端的分层开发概念；MVVM 主要关注于前端视图层分离�
 
 ```html
 1、 v-bind 中支持绑定一个对象 
-	如果绑定的是一个对象，则键为对应的类名值为对应data中的数据 
+    如果绑定的是一个对象，则键为对应的类名值为对应data中的数据 
 <!-- HTML最终渲染为 <ul class="box textColor textSize"></ul>
-	注意：
-		textColor，textSize 对应的渲染到页面上的CSS类名	
-		isColor，isSize 对应vue data中的数据 如果为true 则对应的类名 渲染到页面上。当 isColor 和 isSize 变化时，class列表将相应的更新，
-		例如，将isSize改成false，
-		class列表将变为 <ul class="box textColor"></ul>-->
+    注意：
+        textColor，textSize 对应的渲染到页面上的CSS类名    
+        isColor，isSize 对应vue data中的数据 如果为true 则对应的类名 渲染到页面上。当 isColor 和 isSize 变化时，class列表将相应的更新，
+        例如，将isSize改成false，
+        class列表将变为 <ul class="box textColor"></ul>-->
 
 <ul class="box" v-bind:class="{textColor:isColor, textSize:isSize}">
     <li>学习Vue</li>
@@ -610,7 +609,7 @@ var vm= new Vue({
     data:{
         isColor:true,
         isSize:true，
-    		activeColor:"red",
+            activeColor:"red",
         activeSize:"25px",
     }
 })
@@ -630,7 +629,7 @@ var vm= new Vue({
 </style>
 ```
 
-####  [绑定class](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=26)
+#### [绑定class](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=26)
 
 绑定样式的 class 写法适用于样式类名不确定，需要动态指定。样式绑定的数组写法，适用于绑定样式个数不确定，名字不确定。对象写法通常适用于绑定样式的个数确定，名称也确定，但需要动态决定用不用的情况。
 
@@ -841,7 +840,7 @@ var vm= new Vue({
                 }]
             },
             methods: {
-                
+
             }
         })
     </script>
@@ -1015,16 +1014,16 @@ var vm= new Vue({
 
 ### 表单基本操作（同一个`v-model`不同输入域）-用于用户交互（填充、发送邮件信息）
 
-| 表单类型   | 中文     |
-| ---------- | -------- |
+| 表单类型       | 中文   |
+| ---------- | ---- |
 | `input`    | 单行文本 |
 | `textarea` | 多行文本 |
 | `select`   | 下拉多选 |
-| `radio`    | 单选框   |
-| `checkbox` | 多选框   |
+| `radio`    | 单选框  |
+| `checkbox` | 多选框  |
 
 - 表单双向绑定
-
+  
   ```html
   <!-- 两个单选框需要同时通过 v-model 双向绑定一个值;每一个单选框必须要有 value 属性且 value 值不能一样;当某一个单选框选中的时候 v-model 会将当前的 value 值改变 data 中的数据 -->
   <!DOCTYPE html>
@@ -1126,24 +1125,23 @@ var vm= new Vue({
   </html>
   ```
 
-
 ### 表单修饰符
 
 - .number  转换为数值
-
+  
   - 当开始输入非数字的字符串时，因为Vue无法将字符串转换成数值
   - 所以属性值将实时更新成相同的字符串。即使后面输入数字，也将被视作字符串。
 
 - .trim  自动过滤用户输入的首尾空白字符
-
+  
   - 只能去掉首尾的 不能去除中间的空格
 
 - .lazy   将input事件切换成change事件
-
+  
   - .lazy 修饰符延迟了同步更新属性值的时机。即将原本绑定在 input 事件的同步逻辑转变为绑定在 change 事件上
 
 - 在失去焦点 或者 按下回车键时才更新
-
+  
   ```html
   <!-- 自动将用户的输入值转为数值类型 -->
   <input v-model.number="age" type="number">
@@ -1153,7 +1151,7 @@ var vm= new Vue({
   <input v-model.lazy="msg" >
   ```
 
-###  [自定义指令](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=45&spm_id_from=pageDriver)
+### [自定义指令](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=45&spm_id_from=pageDriver)
 
 #### Vue.directive  注册全局指令
 
@@ -1268,7 +1266,7 @@ var vm= new Vue({
 - 局部指令只能在当前组件里面使用
 - 当全局指令和局部指令同名时以局部指令为准
 
-###  计算属性   computed
+### 计算属性   computed
 
 - 模板中放入太多的逻辑会让模板过重且难以维护=>使用计算属性可以让模板更加的简洁（`{{msg.split('').reverse().join("")}}`）
 - **计算属性是基于它们的响应式依赖进行缓存的**
@@ -1351,7 +1349,7 @@ var vm= new Vue({
 - 计算属性是基于依赖（data中的数据）进行缓存的
 - 方法不存在缓存
 
-###  侦听器   watch
+### 侦听器   watch
 
 - 使用watch来响应数据的变化
 - 一般用于异步或者开销较大的操作
@@ -1472,7 +1470,7 @@ var vm= new Vue({
 </html>
 ```
 
-###  过滤器
+### 过滤器
 
 Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本格式化。但不是必须要使用，也可以通过计算属性完成类似的操作。过滤器可以用在两个地方：双花括号插值和 v-bind 表达式。过滤器应该被添加在 JavaScript 表达式的尾部，由“管道”符号指示，支持级联操作。过滤器不改变真正的`data`，而只是改变渲染的结果，并返回过滤后的版本。全局注册时是 filter，没有 s 的。而局部过滤器是 filters，是有 s 的。使用时将管道符前的作为参数参数传给管道符后的过滤器（过滤器函数不写小括号也行）。过滤器只能使用在插值语法和 v-bind，不能在 v-model 上使用。
 
@@ -1526,7 +1524,7 @@ Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本�
 </html>
 ```
 
-####  过滤器中传递参数
+#### 过滤器中传递参数
 
 ```html
 <!DOCTYPE html>
@@ -1609,105 +1607,108 @@ Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本�
 ### 生命周期
 
 - 事物从出生到死亡的过程
--  Vue 实例从创建 到销毁的过程 ，这些过程中会伴随着一些函数的自调用。我们称这些函数为钩子函数
+- Vue 实例从创建 到销毁的过程 ，这些过程中会伴随着一些函数的自调用。我们称这些函数为钩子函数
 - 主要阶段：挂载、更新、销毁
 
-####常用钩子函数
+#### 常用钩子函数
 
-| 钩子函数      | 描述                                                         |
-| ------------- | ------------------------------------------------------------ |
-| beforeCreate  | 在实例初始化之后，数据观测和事件配置之前被调用此时 data 和 methods 以及页面的DOM结构未初始化 |
-| created       | 在实例创建完成后被立即调用此时data 和 methods已经可以使用  但是页面还没有渲染出来 |
-| beforeMount   | 在挂载开始之前被调用   此时页面上还看不到真实数据 只是一个模板页面 |
+| 钩子函数          | 描述                                                                      |
+| ------------- | ----------------------------------------------------------------------- |
+| beforeCreate  | 在实例初始化之后，数据观测和事件配置之前被调用此时 data 和 methods 以及页面的DOM结构未初始化                 |
+| created       | 在实例创建完成后被立即调用此时data 和 methods已经可以使用  但是页面还没有渲染出来                        |
+| beforeMount   | 在挂载开始之前被调用   此时页面上还看不到真实数据 只是一个模板页面                                     |
 | mounted       | el被新创建的vm.$el替换，并挂载到实例上去之后调用该钩子。  数据已经真实渲染到页面上  在这个钩子函数里面我们可以使用一些第三方的插件 |
-| beforeUpdate  | 数据更新时调用，发生在虚拟DOM打补丁之前。   页面上数据还是旧版。 |
-| updated       | 数据更改导致的虚拟DOM重新渲染和打补丁，在这之后会调用该钩子。 此时页面上数据已经替换成最新。 |
-| beforeDestroy | 实例销毁之前调用                                             |
-| destroyed     | 实例销毁后调用                                               |
+| beforeUpdate  | 数据更新时调用，发生在虚拟DOM打补丁之前。   页面上数据还是旧版。                                     |
+| updated       | 数据更改导致的虚拟DOM重新渲染和打补丁，在这之后会调用该钩子。 此时页面上数据已经替换成最新。                        |
+| beforeDestroy | 实例销毁之前调用                                                                |
+| destroyed     | 实例销毁后调用                                                                 |
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <div id="app">
-      <div>{{msg}}</div>
-      <button @click='update'>更新</button>
-      <button @click='destroy'>销毁</button>
-    </div>
-    <script type="text/javascript" src="../srcjs/vue.js"></script>
-    <script type="text/javascript">
-      /* Vue实例的生命周期 */
-      var vm = new Vue({
-        el: '#app',
-        data: {
-          msg: '生命周期'
-        },
-        methods: {
-          update: function(){
-            this.msg = 'hi zairesinatra';
-          },
-          destroy: function(){
-            this.$destroy();
-          }
-        },
-        beforeCreate: function(){
-          console.log('beforeCreate');
-        },
-        created: function(){
-          console.log('created');
-        },
-        beforeMount: function(){
-          console.log('beforeMount');
-        },
-        mounted: function(){
-          console.log('mounted');
-        },
-        beforeUpdate: function(){
-          console.log('beforeUpdate');
-        },
-        updated: function(){
-          console.log('updated');
-        },
-        beforeDestroy: function(){
-          console.log('beforeDestroy');
-        },
-        destroyed: function(){
-          console.log('destroyed');
-        }
-      });
-    </script>
-</body>
-</html>
+|   生命周期   | 是否获取dom节点 | 是否可以获取data | 是否获取methods |
+| :----------: | :-------------: | :--------------: | :-------------: |
+| beforeCreate |       否        |        否        |       否        |
+|   created    |       否        |        是        |       是        |
+| beforeMount  |       否        |        是        |       是        |
+|   mounted    |       是        |        是        |       是        |
+
+```js
+beforeCreate  // 这时候data，methods函数未挂载
+created       // data已挂载、methods函数已挂载
+beforeMount   // 相关的render函数首次被调用,dom未挂载
+mounted       // dom已渲染挂载完成
+beforeUpdate
+updated
+beforeDestroy
+destroyed
 ```
+
+请求是异步的，所以不会堵塞页面渲染的主线程
+
+**如果我们的请求不需要获取/借助/依赖/改变DOM，这时请求可以放在Created**
+
+反之则可以放在Mounted里
+
+不能放在`beforeMounted`吗？beforeMount 也是可以的，和这时发请求created一样，dom还没挂载，所以如不需依赖dom的话 可以！
+
+web中的同步和异步：
+（1）同步请求：顺序处理，向服务器发出一个请求时，在服务器没返回结果给客户端之前，要一直处于等待状态直至服务器将结果返回到客户端，才能执行下一步操作。例如普通的 B/S 模式就是同步请求（注：B/S模式 也即服务器与浏览器通信主要采用HTTP协议；通信方式为“请求——响应”，浏览器发出请求；服务器做出响应。）
+（2）异步请求：并行处理，向服务器发出一个请求时，在服务器没返回结果之前，还是可以执行其他操作。例如AJAX技术就是异步请求。
+
+ajax中的同步与异步。ajax.open方法中，第3个参数是设同步或者异步。prototype等js类库一般都默认为异步，即设为true。 先说下同步的情况下，js会等待请求返回，获取status。不需要onreadystatechange事件处理函数。 而异步则需要onreadystatechange事件处理，且值为4再正确处理下面的内容。
+
+```vue
+<div id="app">
+  <div>{{msg}}</div>
+  <button @click='update'>更新</button>
+  <button @click='destroy'>销毁</button>
+</div>
+```
+
+```vue
+<script>
+  /* Vue实例的生命周期 */
+  var vm = new Vue({
+    el: '#app',
+    data: { msg: '生命周期' },
+    methods: {
+      update: function(){ this.msg = 'hi zs'; },
+      destroy: function(){ this.$destroy(); }
+    },
+    beforeCreate: function(){ console.log('beforeCreate'); },
+    created: function(){ console.log('created'); },
+    beforeMount: function(){ console.log('beforeMount'); },
+    mounted: function(){ console.log('mounted'); },
+    beforeUpdate: function(){ console.log('beforeUpdate'); },
+    updated: function(){ console.log('updated'); },
+    beforeDestroy: function(){ console.log('beforeDestroy'); },
+    destroyed: function(){ console.log('destroyed'); }
+  });
+</script>
+```
+
+![vueLifeCycle](./assets/vueLifeCycle.png)
 
 ### 数组变异方法
 
 - 在 Vue 中，直接修改对象属性的值无法触发响应式。当你直接修改了对象属性的值，你会发现，只有数据改了，但是页面内容并没有改变
 - 变异数组方法即保持数组方法原有功能不变的前提下对其进行功能拓展
 
-| `push()`    | 往数组最后面添加一个元素，成功返回当前数组的长度             |
-| ----------- | ------------------------------------------------------------ |
-| `pop()`     | 删除数组的最后一个元素，成功返回删除元素的值                 |
-| `shift()`   | 删除数组的第一个元素，成功返回删除元素的值                   |
-| `unshift()` | 往数组最前面添加一个元素，成功返回当前数组的长度             |
+| `push()`    | 往数组最后面添加一个元素，成功返回当前数组的长度                                    |
+| ----------- | ----------------------------------------------------------- |
+| `pop()`     | 删除数组的最后一个元素，成功返回删除元素的值                                      |
+| `shift()`   | 删除数组的第一个元素，成功返回删除元素的值                                       |
+| `unshift()` | 往数组最前面添加一个元素，成功返回当前数组的长度                                    |
 | `splice()`  | 有三个参数，第一个是想要删除的元素的下标（必选），第二个是想要删除的个数（必选），第三个是删除 后想要在原位置替换的值 |
-| `sort()`    | sort()  使数组按照字符编码默认从小到大排序,成功返回排序后的数组 |
-| `reverse()` | reverse()  将数组倒序，成功返回倒序后的数组                  |
+| `sort()`    | sort()  使数组按照字符编码默认从小到大排序,成功返回排序后的数组                        |
+| `reverse()` | reverse()  将数组倒序，成功返回倒序后的数组                                 |
 
 ### 替换数组
 
 - 不会改变原始数组，但总是返回一个新数组
 
 | filter | filter() 方法创建一个新的数组，新数组中的元素是通过检查指定数组中符合条件的所有元素。 |
-| ------ | ------------------------------------------------------------ |
-| concat | concat() 方法用于连接两个或多个数组。该方法不会改变现有的数组 |
-| slice  | slice() 方法可从已有的数组中返回选定的元素。该方法并不会修改数组，而是返回一个子数组 |
+| ------ | ----------------------------------------------- |
+| concat | concat() 方法用于连接两个或多个数组。该方法不会改变现有的数组             |
+| slice  | slice() 方法可从已有的数组中返回选定的元素。该方法并不会修改数组，而是返回一个子数组  |
 
 ### 动态数组响应式数据
 
@@ -1749,9 +1750,9 @@ Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本�
             <td>{{item.date}}</td>
             <td>
               <!--- 
-				4.1  给修改按钮添加点击事件，  需要把当前的图书的id 传递过去 
-				这样才知道需要修改的是哪一本书籍
-  				--->  
+                4.1  给修改按钮添加点击事件，  需要把当前的图书的id 传递过去 
+                这样才知道需要修改的是哪一本书籍
+                  --->  
               <a href="" @click.prevent='toEdit(item.id)'>修改</a>
               <span>|</span>
               <a href="" @click.prevent>删除</a>
@@ -1880,13 +1881,13 @@ Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本�
                 flag: false,
                 id: '',
                 name: '',
-              
+
             },
             methods: {
                 handle: function() {
                    /*
                      5.4  复用添加方法   用户点击提交的时候依然执行 handle 中的逻辑
-                 		 如果 flag为true 即 表单处于不可输入状态 此时执行的用户编辑数据数据	
+                          如果 flag为true 即 表单处于不可输入状态 此时执行的用户编辑数据数据    
                    */ 
                     if (this.flag) {
                         // 编辑图书
@@ -1918,7 +1919,7 @@ Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本�
                 },
                 toEdit: function(id) {
                      /*
-                     5.3  flag 默认值为false   处于编辑状态 要把 flag 改为true 即当前表单为禁					  用 
+                     5.3  flag 默认值为false   处于编辑状态 要把 flag 改为true 即当前表单为禁                      用 
                      */ 
                     this.flag = true;
                     console.log(id)
@@ -1970,7 +1971,7 @@ Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本�
           // this.books.splice(index, 1);
           // -------------------------
          #// 方法二：通过filter方法进行删除
-		
+
           # 6.4  根据filter 方法 过滤出来id 不是要删除书籍的id 
           # 因为 filter 是替换数组不会修改原始数据 所以需要 把 不是要删除书籍的id  赋值给 books 
           this.books = this.books.filter(function(item){
@@ -1984,25 +1985,24 @@ Vue 允许自定义过滤器（本质就是函数）用于一些常见的文本�
 
 ------
 
-## 组件
+## 组件 
 
-- 组件 (`component`) 是 Vue.js 最强大的功能之一
-- 组件可以扩展 HTML 元素，封装可重用的代码
-- 组件化开发- Google 组件手机-标准、分治、重用、组合
-
-### **组件注册**
+### 组件注册
 
 - [x] #### **组件注意事项**
 
-
 - 组件参数的 `data` 值必须是**函数**同时这个函数要求**返回一个对象**
+
 - 组件模板必须是**单个根元素**
+
 - 组件模板的内容可以是**模板字符串**（ES6语法规则，需要浏览器兼容）-可读性较好
+
 - 组件的命名方式-标签因不区分大小写不可使用驼峰式（警告⚠️：不识别自定义元素标签是否注册）、而组件命名时两者皆可
 
 - [x] #### **全局注册**
 
 - 使用API => `Vue.component('组件名称', {})`两个参数分别是标签名称、选项对象
+
 - **全局组件**注册后，任何**`vue`实例**都可以用
 
 ```html
@@ -2322,13 +2322,13 @@ Vue.use(plugins)
 #### 兄弟之间的传递
 
 - 兄弟之间传递数据需要借助于事件中心（一个Vue实例），通过事件中心传递数据   
-
+  
   ```js
   var eventhub = new Vue()
   ```
 
 - 传递数据方，通过一个事件函数中去触发`eventhub.$emit(方法名, 传递的数据)`
-
+  
   ```js
   methods: {
     被触发的事件函数: function () {
@@ -2338,7 +2338,7 @@ Vue.use(plugins)
   ```
 
 - 接收数据方，通过`mounted(){}`钩子中  触发`eventhub.$on(方法名, 传递的数据)`
-
+  
   ```js
   mounted: function () { // 注意mounted后不是对象
     eventhub.$on('监听的事件名', (val)=>{
@@ -2349,7 +2349,7 @@ Vue.use(plugins)
   ```
 
 - 销毁（取消监听事件）事件 通过`eventHub.$off()`方法名销毁之后无法进行传递数据
-
+  
   ```js
   var vm = new Vue({
               el: "#app",
@@ -2437,7 +2437,7 @@ Vue.use(plugins)
     var vm = new Vue({
       el: '#app',
       data: {
-        
+
       },
       methods: {
         handle: function(){
@@ -2448,7 +2448,6 @@ Vue.use(plugins)
       }
     });
   </script>
-
 ```
 
 ### 组件插槽
@@ -2544,7 +2543,7 @@ Vue.use(plugins)
 </html>
 ```
 
-####  作用域插槽
+#### 作用域插槽
 
 在组件标签中使用 template 包裹需要子组件数据的内容结构，需要注意的是需要加上 scope。数据不在根组件，而需要按需渲染子组件时，常用作用域插槽。通过 scope 接收以及子组件的 slot 标签中的绑定数据名可以不同，只是说谁使用此插槽，谁接收数据。[点此](https://www.bilibili.com/video/BV1Zy4y1K7SH?p=104&spm_id_from=pageDriver)。
 
@@ -2556,9 +2555,9 @@ Vue.use(plugins)
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>作用域插槽</title>
-  	<!-- 使用者决定渲染的结构,子组件提供插槽的数据 -->
-  	<!-- ES6 学的好可在 scope 中直接解构赋值 => scope="{otherdata}" -->
-  	<!-- scope 和 slot-scope 其实是一样的-->
+      <!-- 使用者决定渲染的结构,子组件提供插槽的数据 -->
+      <!-- ES6 学的好可在 scope 中直接解构赋值 => scope="{otherdata}" -->
+      <!-- scope 和 slot-scope 其实是一样的-->
     <style>
         .current{
             color:red
@@ -2567,7 +2566,7 @@ Vue.use(plugins)
 </head>
 <body>
     <div id="app">
-      	<!-- 子组件 -->
+          <!-- 子组件 -->
         <fruit-list :list="arr">
             <!-- template关键性属性slot-scope得到子组件传递的数据 -->
             <template slot-scope="diyname"> <!-- scope -->
@@ -2738,10 +2737,10 @@ Vue.use(plugins)
 
 ### Promise  基本API
 
-| 实例方法（实例对象原型上）    | 说明               |
-| ----------------------------- | ------------------ |
-| `.then()` => `p.then()`       | 异步任务正确结果   |
-| `.catch()` => `catch()`       | 获取异常信息       |
+| 实例方法（实例对象原型上）                 | 说明        |
+| ----------------------------- | --------- |
+| `.then()` => `p.then()`       | 异步任务正确结果  |
+| `.catch()` => `catch()`       | 获取异常信息    |
 | `.finally()` => `p.finally()` | 不论成功与否都执行 |
 
 ```js
@@ -2750,9 +2749,9 @@ Promise.race([promise1, promise2, promise3]).then(result) => {console.log(result
 // 得到结果的条件不同-全部完成、竞速完成
 ```
 
-| 对象方法                      | 说明                                                         |
-| ----------------------------- | ------------------------------------------------------------ |
-| `.all()` =>  `Promise.all()`  | `Promise.all`方法接受一个`promise`实例数组作参数（如果不是一个promise，该项会被用`Promise.resolve`转换为一个promise)。并发处理的所有任务都执行完才得到结果。 |
+| 对象方法                          | 说明                                                                                                                                    |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `.all()` =>  `Promise.all()`  | `Promise.all`方法接受一个`promise`实例数组作参数（如果不是一个promise，该项会被用`Promise.resolve`转换为一个promise)。并发处理的所有任务都执行完才得到结果。                             |
 | `.race()` => `Promise.race()` | `Promise.race`方法同样接受一个`promise`实例数组数组作参数。当p1, p2, p3中有一个实例的状态发生改变（变为`fulfilled`或`rejected`），p的状态就跟着改变。并把第一个改变状态的promise的返回值，传给p的回调函数。 |
 
 对于Promise说法不正确的是:【D】
@@ -2776,7 +2775,7 @@ D、await应该用来修饰Promise实例
 关于实例化 Promise 对象在失败时调用的参数是：【C】
 
 ```
-A、resolve	B、then	C、reject	D、catch
+A、resolve    B、then    C、reject    D、catch
 ```
 
 ### fetch
@@ -2909,7 +2908,6 @@ A、resolve	B、then	C、reject	D、catch
 - 响应数据格式：`text()`返回体处理成字符串类型、`JSON()`返回结果和`JSON.parse(responseText`)一样
 
 ```js
-
     /*
       Fetch响应结果的数据格式
     */
@@ -2922,13 +2920,12 @@ A、resolve	B、then	C、reject	D、catch
       var obj = JSON.parse(data);
       console.log(obj.uname,obj.age,obj.gender)
     })
-
 ```
 
 下列关于fetch请求方法不包括：【A】
 
 ```
-A、axios	B、GET	C、POST	D、DELETE
+A、axios    B、GET    C、POST    D、DELETE
 ```
 
 下列关于fetch说法不正确的是:【C】
@@ -2936,7 +2933,7 @@ A、axios	B、GET	C、POST	D、DELETE
 ```
 A、更加简单的数据获取方式，功能更强大、更灵活
 B、基于Promise实现
-C、text()可以拿到最终的数据	//then之后需要JSON转化
+C、text()可以拿到最终的数据    //then之后需要JSON转化
 D、fetch()参数中传递的是url地址
 ```
 
@@ -3070,12 +3067,12 @@ expr.listen(3000, ()=>{
 
 #### axios 响应结果
 
-| 响应结果     | 属性             |
-| ------------ | ---------------- |
+| 响应结果         | 属性       |
+| ------------ | -------- |
 | `data`       | 实际响应回的数据 |
-| `headers`    | 响应头信息       |
-| `status`     | 响应状态码       |
-| `statusText` | 响应状态信息     |
+| `headers`    | 响应头信息    |
+| `status`     | 响应状态码    |
+| `statusText` | 响应状态信息   |
 
 #### axios 全局配置
 
@@ -3129,6 +3126,7 @@ expr.get('/shortURL',(req,res)=>{
 #### axios 拦截器
 
 - 请求拦截器
+  
   - 作用 => 请求发出前作设置
     - 例 => 在每个请求体中加上token（统一处理后期维护容易）
   - 图示 => <img src="./img/axios拦截器.png" width="50%" />
@@ -3143,8 +3141,9 @@ expr.get('/shortURL',(req,res)=>{
     // 处理响应错误的信息
   })
   ```
-  
+
 - 响应拦截器
+  
   - 作用 => 接收到响应后进行补充操作
     - 例 => 服务器返回失效的登录状态，需要重新登录的时跳转到登录页
   - 图例 => <img src="./img/axios响应拦截器.png" width="50%" />
@@ -3160,15 +3159,15 @@ expr.get('/shortURL',(req,res)=>{
   })
   ```
 
-### async  和 await
+#### async  和 await
 
 - 诞生原因 => 多个异步接口调用，通过 `then` 来链式调用没有特别简洁，故 ES7 引入
 - `async` 作为关键字用于函数前
   - 任何一个`async`函数都会隐式返回一个`promise`
   - 可以结合 `promise`一起使用
 - `await`关键字只能在使用`async`定义的函数中使用，处理异步任务
-  -  `await` 后面可以直接跟一个 Promise实例对象则直接得到返回结果，不再需要 `then`
-  -  `await` 函数不能单独使用
+  - `await` 后面可以直接跟一个 Promise实例对象则直接得到返回结果，不再需要 `then`
+  - `await` 函数不能单独使用
 - **async/await 让异步代码看起来、表现起来更像同步代码**
 
 ```html
@@ -3296,14 +3295,14 @@ const xzy = {
 ```js
 // 创建路由实例对象
 const router = new VueRouter({
-	// 所有的路由规则
-	routes: [
-  	// component只接受组件对象不接受字符串
-  	// path表示当前路由规则配置的 hash 地址
-  	// component表示当前路由规则展示的组件
-  	{ path: "/usr", component: usr },
-		{ path: "/xzy", component: xzy }
-	]
+    // 所有的路由规则
+    routes: [
+      // component只接受组件对象不接受字符串
+      // path表示当前路由规则配置的 hash 地址
+      // component表示当前路由规则展示的组件
+      { path: "/usr", component: usr },
+        { path: "/xzy", component: xzy }
+    ]
 })
 ```
 
@@ -3311,12 +3310,12 @@ const router = new VueRouter({
 
 ```js
 var vm = new Vue({
-	el: "#zs",
-	data: {},
-	methods: {},
-	// 挂载路由实例对象
-	// router: router可以简写
-	router
+    el: "#zs",
+    data: {},
+    methods: {},
+    // 挂载路由实例对象
+    // router: router可以简写
+    router
 })
 ```
 
@@ -3497,17 +3496,17 @@ var vm = new Vue({
 
 ```js
 var router = new VueRouter({
-	routes: [
-		// 动态路径参数-冒号开头
-		{ path: "/xzy/:params", component: my-component }
-	]
+    routes: [
+        // 动态路径参数-冒号开头
+        { path: "/xzy/:params", component: my-component }
+    ]
 })
 ```
 
 ```js
 const my-component = {
-	// 路由组件中通过$route.params对象获取路由参数
-	template: '<div>xzy {{ $route.params.params }}</div>'
+    // 路由组件中通过$route.params对象获取路由参数
+    template: '<div>xzy {{ $route.params.params }}</div>'
 }
 ```
 
@@ -3611,17 +3610,17 @@ const my-component = {
 
 ```js
 var router = new VueRouter({
-	routes: [
-		// props值为布尔类型-开启路由传参
-		{ path: "/my-component/:params", component: my-component, props: true }
-	]
+    routes: [
+        // props 值为布尔类型-开启路由传参
+        { path: "/my-component/:params", component: my-component, props: true }
+    ]
 })
 ```
 
 ```js
 const my-component = {
-  props: ['n'], // props接受路由参数
-	template: '<div>xzy {{ n }}</div>' // 使用路由参数
+  props: ['n'], // props 接受路由参数 => 类型为数组,值为在 routes 中的 props 指定
+    template: '<div>xzy {{ n }}</div>' // 直接使用路由参数
 }
 ```
 
@@ -3629,10 +3628,10 @@ const my-component = {
 
 ```js
 var router = new VueRouter({
-	routes: [
-		// props值为对象则按原样设置为组件属性
-		{ path: "/objprops/:params", component: my-component, props: { username:'zs', age: 23 } }
-	]
+    routes: [
+        // props值为对象则按原样设置为组件属性
+        { path: "/objprops/:params", component: my-component, props: { username:'zs', age: 23 } }
+    ]
 })
 const objprops = {
   props: ['username', 'age'],
@@ -3644,12 +3643,12 @@ const objprops = {
 
 ```js
 var router = new VueRouter({
-	routes: [
-		// props值为函数则此函数接受 route 对象为形参
-		{ path: "/threebody/:fn", component: threebody,
-    	props: route => ({ color: "black", appearance: "polygon", fn: route.params.fn })
+    routes: [
+        // props值为函数则此函数接受 route 对象为形参
+        { path: "/threebody/:fn", component: threebody,
+        props: route => ({ color: "black", appearance: "polygon", fn: route.params.fn })
     }
-	]
+    ]
 })
 const threebody = {
   props: ['color', 'appearance', 'fn'],
@@ -3729,7 +3728,7 @@ Vue.use(Vuex)
 
 ```js
 const store = new Vuex.Store({
-	state: { count:0 } // 对象中的数据就是全局共享的数据
+    state: { count:0 } // 对象中的数据就是全局共享的数据
 })
 ```
 
@@ -3761,15 +3760,15 @@ computed: {
 
 ```js
 const store = new Vuex.Store({
-	state: {
-		count: 0
-	},
-	mutations: {
-		add(state, strp) {
-			// 变更状态
-			state.count += step
-		}
-	}
+    state: {
+        count: 0
+    },
+    mutations: {
+        add(state, strp) {
+            // 变更状态
+            state.count += step
+        }
+    }
 })
 ```
 
@@ -3802,30 +3801,30 @@ methods: {
 
 ```js
 const store = new Vuex Store({
-	mutations: {
-		add(state) {
-			state.count++
-		},
+    mutations: {
+        add(state) {
+            state.count++
+        },
     addN(state, step) {
       state.count += step
     }
-	},
-	actions: {
-		addAsync(context, step) {
-		setTimeout(() => {
-			context.commit('addN', step)
-		}, 1000)
-		}
-	}
+    },
+    actions: {
+        addAsync(context, step) {
+        setTimeout(() => {
+            context.commit('addN', step)
+        }, 1000)
+        }
+    }
 })
 ```
 
 ```js
 // 触发 Actions 
 methods: {
-	handle() {
-		this.$store.dispatch('addAsync', 5) // 一个是dispatch一个是commit
-	}
+    handle() {
+        this.$store.dispatch('addAsync', 5) // 一个是dispatch一个是commit
+    }
 }
 ```
 
@@ -3839,7 +3838,7 @@ import { mapActions } from 'vuex'
 ```js
 // 指定的 actions 函数映射为当前组件的 methods 函数
 methods: {
-	...mapActions(['addAsync', 'addNAsync'])
+    ...mapActions(['addAsync', 'addNAsync'])
 }
 ```
 
@@ -3847,16 +3846,19 @@ methods: {
 
 - `Getter` 用于对 `Store` 中数据进行加工处理形成新的数据，不会修改 `Store` 里的原数据，仅包装。类似于 `Vue` 中计算属性。 `Store` 中数据发生变化，`Getter` 数据也会发生变化。
 
-```
+```js
+/*
+getters 用于对 Store 中数据进行包装加工处理形成新的数据，不会修改 Store 里的原数据。类似于 Vue 中计算属性。Store 中数据发生变化，getters 里的数据也会发生变化。
+*/
 const store = new Vuex.Store({
-	state: {
-		count: 0
-	},
-	getters: {
-		showNum: state => {
-			return '当前最新的数据是['+ state.count +']'
-		}
-	}
+    state: {
+        count: 0
+    },
+    getters: {
+        showNum: state => {
+            return '当前最新的数据是['+ state.count +']'
+        }
+    }
 })
 ```
 
@@ -3869,8 +3871,6 @@ computed: {
   ...mapGetters(['名称'])
 }
 ```
-
-
 
 ## 总结
 
@@ -3938,3 +3938,16 @@ this.$nextTick 指定的回调会在 DOM 节点更新后再执行。[点此](htt
 
 data 始终为函数是为防止组件复用时，产生数据的关联关系造成的干扰。
 
+为什么说 VUE 没有完全遵循 MVVM？
+
+- MVVM 对应 3个组成部分，Model（模型）、View（视图） 和 ViewModel（视图模型）。
+- View 是屏幕上的结构、布局和外观，也称 UI；Model 是数据和逻辑；ViewModel 是一个绑定器，能和 View 层和 Model 层进行通信。
+- MVVM 模式是大神 [Martin Fowler](https://link.zhihu.com/?target=https%3A//martinfowler.com/) 的 PM（Presentation Model）设计模式的变体，当然 PM 模式和 MVVM 模式都是 MVC 模式的变体。
+- 两个完全遵循的 MVVM 的例子：[ZK](https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/wiki/ZK)（Java写的一个[Web应用框架](https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/wiki/Web%E5%BA%94%E7%94%A8%E6%A1%86%E6%9E%B6)）和[KnockoutJS](https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/w/index.php%3Ftitle%3DKnockoutJS%26action%3Dedit%26redlink%3D1)（一个[JavaScript](https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/wiki/JavaScript)[库](https://link.zhihu.com/?target=https%3A//zh.wikipedia.org/wiki/%E5%87%BD%E5%BC%8F%E5%BA%AB)）
+- MVVM 的核心实现是由 ViewModel 层数据绑定，核心思想是分离，即软件开发两个最重要的思想之一“拆分”的体现，也就是通过 ViewModel 让 View 层和 Model 层解耦。这样做的好处是想让设计师专注 View 层的设计和编写，软件工程师专注 Model 层的业务逻辑编写。
+- **严格的 MVVM 要求 View 不能和 Model 直接通信，而 Vue 在组件提供了 $refs 这个属性，让 Model 可以直接操作 View，违反了这一规定，所以说 Vue 没有完全遵循 MVVM。**通过ref可以拿到dom对象，通过ref直接去操作视图。
+- Vue 的实例是一个 ViewModel，简单场景下直接吞并了 Model 的存在。在全局状态的场景下，Vuex 可以视为半个 Model。没有 Model 的 MVVM，是不完整的。因此可以基于 Vue 3 的 reactive API，自行实现完整的 Model，将 Vue 的实例视为中间的 ViewModel 层，搭配使用。
+
+只有当实例被创建时就已经存在于 `data` 中的 property 才是**响应式**的，如果知道会在晚些时候需要一个 property，但是一开始它为空或不存在，那么仅需要设置一些初始值。[clickme](https://cn.vuejs.org/v2/guide/instance.html)。这里唯一的例外是使用 `Object.freeze()`，这会阻止修改现有的 property，也意味着响应系统无法再追踪变化。
+
+Vue中v-model和v-bind:value的区别以及手动实现v-model

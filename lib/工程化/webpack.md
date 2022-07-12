@@ -2,10 +2,6 @@
 
 ------
 
-## webpack 简介
-
-### 概述
-
 webpack 是一种前端资源构建工具，一个静态模块打包器 (module bundler) 。 在 webpack 看来, 前端的所有资源文件 `(js/json/css/img/less/...)` 都会作为模块处理。根据模块的依赖关系进行静态分析，打包生成对应的静态资源 (bundle) 。 
 
 ### 五个核心概念
@@ -182,7 +178,8 @@ module.exports = {
       { 
         test: /\.less$/, // 要使用多个 loader 处理用 use 
         use: ['style-loader', 'css-loader', 'less-loader'] 
-      },{ 
+      },
+      { 
         // 问题：默认处理不了 html 中 img 图片 
         // 处理图片资源 
         test: /\.(jpg|png|gif)$/, 
@@ -218,8 +215,6 @@ module.exports = {
 
 #### 打包其他资源
 
-通常为矢量图标库
-
 ```zsh
 # 下载安装 loader 包
 npm install --save-dev file-loader
@@ -239,7 +234,7 @@ module.exports = {
         test: /\.css$/, 
         use: ['style-loader', 'css-loader']
       }, // 打包其他资源(除了 html/js/css 资源以外的资源) 
-      { // 排除 css/js/html 资源 
+      { // 排除 css/js/html 资源-通常为矢量图标库
         exclude: /\.(css|js|html|less)$/, 
         loader: 'file-loader', 
         options: { name: '[hash:10].[ext]' } 
@@ -793,9 +788,9 @@ module.exports = {
 
 | 文件        | 热更新                                                       |
 | ----------- | ------------------------------------------------------------ |
-| 样式文件    | 可以使用 HMR 因为 style-loader 内部已实现                    |
+| 样式文件    | 可以使用 HMR功能，因为 style-loader 内部已实现               |
 | `.js` 文件  | 默认不能使用 HMR 功能                                        |
-| `html` 文件 | 默认不能使用 HMR ，同时导致不能热更新的问题（解决：将 `./src/index.html` 文件也放入 entry 入口）——只有一个文件不需要考虑 HMR 功能。 |
+| `html` 文件 | 默认不能使用 HMR；将 `./src/index.html` 文件也放入 entry 入口能解决导致不能热更新的问题——只有一个文件不需要考虑 HMR 功能。 |
 
 ```js
 devServer: {
@@ -1099,28 +1094,6 @@ module.exports = {
 const { resolve } = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
-  // 单入口
-  // entry: './src/js/index.js',
-  entry: { // 多入口：有一个入口, 最终输出就有一个 bundle --> 有几个入口, 输出几个 bundle
-    index: './src/js/index.js',
-    test: './src/js/test.js' 
-  },
-  output: {
-    // [name]: 取文件名
-    filename: 'js/[name].[contenthash:10].js',
-    path: resolve(__dirname, 'build')
-  },
-  plugins: [
-    new HtmlWebpackPlugin({ template: './src/index.html', minify: { collapseWhitespace: true, removeComments: true } })
-  ],
-  mode: 'production'
-};
-```
-
-```js
-const { resolve } = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-module.exports = {
   // 单入口 
   // entry: './src/js/index.js',
   entry: {
@@ -1186,7 +1159,7 @@ document.getElementById('btn').onclick = function() {
 
 ### pwa
 
-pwa 又称渐进式网络开发应用程序（Progressive Web Apps）—— 离线可访问。通常使用 workbox ，在 webpack 中使用插件 workbox-webpack-plugin 。
+pwa 又称渐进式网络开发应用程序 Progressive Web Apps，即离线可访问。通常在 webpack 中使用插件 workbox-webpack-plugin。
 
 ```js
 // package.json
